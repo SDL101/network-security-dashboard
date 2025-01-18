@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Network Security Monitoring Dashboard</title>
+    <style>
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        border: 1px solid black;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Network Security Monitoring Dashboard</h2>
+    <h3>Developed by Scott Lindsay</h3>
+
+    <label for="eventType">Filter by Event Type:</label>
+    <select id="eventType">
+      <option value="">All</option>
+      <option value="failed_login">Failed Login</option>
+      <option value="network_scan">Network Scan</option>
+    </select>
+
+    <label for="startDate">Start Date:</label>
+    <input type="date" id="startDate" />
+
+    <label for="endDate">End Date:</label>
+    <input type="date" id="endDate" />
+
+    <button onclick="applyFilters()">Apply Filters</button>
+    <button onclick="fetchLogs()">Reset Filters</button>
+    <button onclick="fetchLogs()">Load Logs</button>
+
+    <!-- Table for Logs -->
+    <table id="logs-table">
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>Source IP</th>
+          <th>Destination IP</th>
+          <th>Event Type</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Logs will be dynamically inserted here -->
+      </tbody>
+    </table>
+
+    <script>
+      function applyFilters() {
+        const eventType = document.getElementById("eventType").value;
+        const startDate = document.getElementById("startDate").value;
+        const endDate = document.getElementById("endDate").value;
+        fetchFilteredLogs(eventType, startDate, endDate);
+      }
+
+      function fetchLogs() {
+        console.log("Fetching logs...");
+
+        fetch("http://localhost:5000/get_logs") // Make sure the backend is running
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("API Response Data:", data);
+            const tableBody = document.querySelector("#logs-table tbody");
+            tableBody.innerHTML = "";
+
+            if (data.length === 0) {
+              console.warn("No logs found.");
+              tableBody.innerHTML =
+                "<tr><td colspan='5'>No logs available</td></tr>";
+              return;
+            }
+
+            data.forEach((log) => {
+              const formattedDate = new Date(log.timestamp).toLocaleString();
+              const isCritical = log.event_type === "failed_login";
+
+              const row = `<tr style="color: ${isCritical ? "red" : "black"};">
+                            <td>${formattedDate}</td>
+                            <td>${log.source_ip}</td>
+                            <td>${log.destination_ip}</td>
+                            <td>${log.event_type}</td>
+                            <td>${log.details}</td>
+                        </tr>`;
+              tableBody.innerHTML += row;
+            });
+          })
+          .catch((error) => console.error("Error fetching logs:", error));
+      }
+    </script>
+  </body>
+</html>
