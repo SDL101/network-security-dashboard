@@ -3,102 +3,149 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Network Security Monitoring Dashboard</title>
-    <style>
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-      }
-      th,
-      td {
-        border: 1px solid black;
-        padding: 8px;
-        text-align: left;
-      }
-      th {
-        background-color: #f2f2f2;
-      }
-    </style>
+    <title>Network Security Monitor</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
   </head>
   <body>
-    <h2>Network Security Monitoring Dashboard</h2>
-    <h3>Developed by Scott Lindsay</h3>
+    <div class="dashboard">
+      <div id="connection-status" class="connection-status">Connecting...</div>
+      <h1>Network Security Monitor</h1>
 
-    <label for="eventType">Filter by Event Type:</label>
-    <select id="eventType">
-      <option value="">All</option>
-      <option value="failed_login">Failed Login</option>
-      <option value="network_scan">Network Scan</option>
-    </select>
+      <div class="stats-panel">
+        <div class="stat-box clickable" data-filter="all">
+          <h3>Total Events</h3>
+          <span id="total-events">0</span>
+          <div class="stat-footer">Click to view all</div>
+        </div>
+        <div class="stat-box warning clickable" data-filter="security">
+          <h3>Security Alerts</h3>
+          <span id="security-alerts">0</span>
+          <div class="stat-footer">Click to view alerts</div>
+        </div>
+        <div class="stat-box clickable" data-filter="active">
+          <h3>Active Connections</h3>
+          <span id="active-connections">0</span>
+          <div class="stat-footer">Click to view connections</div>
+        </div>
+      </div>
 
-    <label for="startDate">Start Date:</label>
-    <input type="date" id="startDate" />
+      <div class="filters">
+        <select id="eventType">
+          <option value="">All Events</option>
+          <option value="network_scan">Port Scans</option>
+          <option value="large_packet">Large Packets</option>
+          <option value="external_connection">External Connections</option>
+          <option value="normal_traffic">Normal Traffic</option>
+        </select>
+        <button onclick="clearLogs()">Clear Logs</button>
+      </div>
 
-    <label for="endDate">End Date:</label>
-    <input type="date" id="endDate" />
+      <div class="control-panel">
+        <button id="startCapture" class="control-btn">
+          <span class="icon">▶️</span>
+          <span class="btn-text">Start Capture</span>
+        </button>
+        <button id="stopCapture" class="control-btn" disabled>
+          <span class="icon">⏹️</span>
+          <span class="btn-text">Stop Capture</span>
+        </button>
+        <button id="toggleCapture" class="control-btn">
+          <span class="icon">⏸️</span>
+          <span class="btn-text">Pause Capture</span>
+        </button>
+        <button onclick="clearLogs()" class="control-btn">
+          <span class="icon">🗑️</span>
+          <span class="btn-text">Clear Logs</span>
+        </button>
+      </div>
 
-    <button onclick="applyFilters()">Apply Filters</button>
-    <button onclick="fetchLogs()">Reset Filters</button>
-    <button onclick="fetchLogs()">Load Logs</button>
+      <div class="search-panel">
+        <div class="search-header">
+          <h3>Search Filters</h3>
+          <button id="toggleSearch" class="toggle-search">
+            <span class="icon">🔍</span>
+          </button>
+        </div>
+        <div class="search-fields">
+          <div class="search-group">
+            <input
+              type="text"
+              id="ipSearch"
+              placeholder="Search by IP address"
+            />
+            <select id="ipSearchType">
+              <option value="both">Source or Destination</option>
+              <option value="source">Source IP Only</option>
+              <option value="dest">Destination IP Only</option>
+            </select>
+          </div>
+          <div class="search-group">
+            <input type="text" id="portSearch" placeholder="Search by Port" />
+          </div>
+          <div class="search-group">
+            <select id="severityFilter">
+              <option value="">All Severities</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+          <div class="search-group">
+            <input
+              type="datetime-local"
+              id="startTime"
+              placeholder="Start Time"
+            />
+            <input type="datetime-local" id="endTime" placeholder="End Time" />
+          </div>
+          <div class="search-actions">
+            <button id="applySearch" class="search-btn">Apply Filters</button>
+            <button id="clearSearch" class="search-btn clear">
+              Clear Filters
+            </button>
+          </div>
+        </div>
+      </div>
 
-    <!-- Table for Logs -->
-    <table id="logs-table">
-      <thead>
-        <tr>
-          <th>Timestamp</th>
-          <th>Source IP</th>
-          <th>Destination IP</th>
-          <th>Event Type</th>
-          <th>Details</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Logs will be dynamically inserted here -->
-      </tbody>
-    </table>
+      <table id="logs-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Source IP</th>
+            <th>Destination IP</th>
+            <th>Event Type</th>
+            <th>Details</th>
+            <th>Severity</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
 
-    <script>
-      function applyFilters() {
-        const eventType = document.getElementById("eventType").value;
-        const startDate = document.getElementById("startDate").value;
-        const endDate = document.getElementById("endDate").value;
-        fetchFilteredLogs(eventType, startDate, endDate);
-      }
-
-      function fetchLogs() {
-        console.log("Fetching logs...");
-
-        fetch("http://localhost:5000/get_logs")
-          .then((response) => response.json())
-          .then((data) => {
-            console.log("API Response Data:", data);
-            const tableBody = document.querySelector("#logs-table tbody");
-            tableBody.innerHTML = "";
-
-            if (data.length === 0) {
-              console.warn("No logs found.");
-              tableBody.innerHTML =
-                "<tr><td colspan='5'>No logs available</td></tr>";
-              return;
-            }
-
-            data.forEach((log) => {
-              const formattedDate = new Date(log.timestamp).toLocaleString();
-              const isCritical = log.event_type === "failed_login";
-
-              const row = `<tr style="color: ${isCritical ? "red" : "black"};">
-                            <td>${formattedDate}</td>
-                            <td>${log.source_ip}</td>
-                            <td>${log.destination_ip}</td>
-                            <td>${log.event_type}</td>
-                            <td>${log.details}</td>
-                        </tr>`;
-              tableBody.innerHTML += row;
-            });
-          })
-          .catch((error) => console.error("Error fetching logs:", error));
-      }
-    </script>
+      <footer class="dashboard-footer">
+        <div class="footer-content">
+          <span>Developed by Scott Lindsay</span>
+          <a
+            href="https://github.com/SDL101/network-security-dashboard"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="github-link"
+          >
+            <svg height="24" width="24" viewBox="0 0 16 16" class="github-icon">
+              <path
+                fill="currentColor"
+                d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+              ></path>
+            </svg>
+            <span>View on GitHub</span>
+          </a>
+        </div>
+      </footer>
+    </div>
+    <script src="script.js"></script>
   </body>
 </html>
