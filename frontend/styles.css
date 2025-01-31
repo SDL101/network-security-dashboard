@@ -35,13 +35,69 @@ body {
   padding-bottom: 0;
 }
 
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2rem;
+  margin-bottom: 1rem;
+  gap: 200px;
+}
+
+.developer-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.developer-info span {
+  opacity: 0.8;
+}
+
 h1 {
-  color: var(--primary);
-  font-size: 2.5rem;
-  margin-bottom: 30px;
+  margin: 0;
+  font-size: 2.4rem;
+  font-weight: 700;
   text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 2px;
+  background: linear-gradient(135deg, #3699ff 0%, #5d7aff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 15px rgba(54, 153, 255, 0.2);
+  position: relative;
+  padding: 0.5rem 0;
+}
+
+h1::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 180px;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    rgba(54, 153, 255, 0) 0%,
+    rgba(54, 153, 255, 0.5) 50%,
+    rgba(54, 153, 255, 0) 100%
+  );
+  border-radius: 2px;
+}
+
+h1:hover {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    text-shadow: 0 2px 15px rgba(54, 153, 255, 0.2);
+  }
+  to {
+    text-shadow: 0 2px 25px rgba(54, 153, 255, 0.4);
+  }
 }
 
 .stats-panel {
@@ -569,54 +625,51 @@ tr.external_connection td {
   padding: 2px 4px;
 }
 
-/* Add these styles for the footer */
-.dashboard-footer {
-  margin-top: auto;
-  padding: 20px;
-  background: var(--surface);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  width: 100%;
+/* Remove these footer-related styles */
+.dashboard-footer,
+.footer-content {
+  display: none; /* This will hide them if they can't be removed immediately */
 }
 
-.footer-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-  font-size: 0.9rem;
-  color: var(--text);
-  opacity: 0.8;
+#exportLogs {
+  background: var(--primary);
+  color: var(--background);
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#exportLogs:hover:not(:disabled) {
+  background: var(--primary-glow);
+}
+
+#exportLogs:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .github-link {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--text);
+  color: #ffffff;
   text-decoration: none;
   padding: 8px 16px;
   border-radius: 6px;
-  background: rgba(54, 153, 255, 0.1);
-  border: 1px solid rgba(54, 153, 255, 0.2);
+  background: rgba(54, 153, 255, 0.2);
+  border: 1px solid rgba(54, 153, 255, 0.3);
   transition: all 0.2s ease;
 }
 
 .github-link:hover {
   background: var(--primary);
   border-color: var(--primary);
+  transform: translateY(-2px);
+  color: #ffffff;
 }
 
-.github-icon {
-  opacity: 0.9;
-}
-
-/* Ensure the main content area fills available space */
-.dashboard > *:not(.dashboard-footer) {
-  flex: 1;
-  padding: 20px;
-}
-
-/* Add some spacing before the footer */
-#logs-table {
-  margin-bottom: 40px;
+.github-link svg {
+  color: #ffffff;
 }

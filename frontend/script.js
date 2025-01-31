@@ -23,6 +23,9 @@ const searchState = {
   endTime: "",
 };
 
+// Add this global variable to track if we're coming from a stopped state
+let wasStoppedBefore = true; // Initialize as true for first start
+
 // Make sure all required elements exist
 function ensureElements() {
   const elements = {
@@ -135,19 +138,24 @@ function addLogEntry(log) {
 }
 
 function clearLogs() {
-  if (isCapturing && !isCapturePaused) {
-    alert("Please pause or stop capture before clearing logs");
+  if (isCapturing) {
+    alert("Please stop capture before clearing logs");
     return;
   }
 
+  // Clear frontend
   const elements = ensureElements();
   if (elements.logsTable) {
     elements.logsTable.innerHTML = "";
   }
+
+  // Reset all frontend counters and states
   totalEvents = 0;
   securityAlerts = 0;
   activeConnections.clear();
   queuedLogs = [];
+
+  // Reset stats display
   updateStats({
     packets_analyzed: 0,
     threats_detected: 0,
@@ -155,10 +163,42 @@ function clearLogs() {
     scan_status: "Normal",
     uptime_seconds: 0,
   });
+
+  // Clear any active filters
+  const statBoxes = document.querySelectorAll(".stat-box.clickable");
+  statBoxes.forEach((box) => box.classList.remove("active"));
+
+  // Reset event type filter
+  const eventTypeSelect = document.getElementById("eventType");
+  if (eventTypeSelect) eventTypeSelect.value = "";
+
+  // Force immediate UI update
+  if (elements.totalEvents) elements.totalEvents.textContent = "0";
+  if (elements.securityAlerts) elements.securityAlerts.textContent = "0";
+  if (elements.activeConnections) elements.activeConnections.textContent = "0";
+
+  // Clear backend logs via API
+  fetch("http://localhost:5000/clear_logs", {
+    method: "POST",
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Failed to clear logs on server");
+      }
+      console.log("Logs cleared successfully on both frontend and backend");
+    })
+    .catch((error) => {
+      console.error("Error clearing logs:", error);
+    });
 }
 
-// Initial load of logs
+// Update the loadInitialLogs function to respect cleared state
 function loadInitialLogs() {
+  if (!isCapturing) {
+    console.log("Not loading initial logs - capture is stopped");
+    return;
+  }
+
   fetch("http://localhost:5000/get_logs")
     .then((response) => {
       if (!response.ok) {
@@ -167,8 +207,8 @@ function loadInitialLogs() {
       return response.json();
     })
     .then((data) => {
-      console.log("Initial logs loaded:", data);
-      if (data.logs) {
+      if (isCapturing && data.logs) {
+        // Only process if still capturing
         data.logs.forEach((log) => addLogEntry(log));
       }
       if (data.stats) {
@@ -177,9 +217,10 @@ function loadInitialLogs() {
     })
     .catch((error) => {
       console.error("Error loading initial logs:", error);
-      showConnectionStatus("Error loading logs - retrying...", "error");
-      // Retry after 5 seconds
-      setTimeout(loadInitialLogs, 5000);
+      if (isCapturing) {
+        showConnectionStatus("Error loading logs - retrying...", "error");
+        setTimeout(loadInitialLogs, 5000);
+      }
     });
 }
 
@@ -197,11 +238,37 @@ socket.on("connect_error", (error) => {
 
 socket.on("new_log", function (data) {
   console.log("Received new log:", data);
+  if (!isCapturing) {
+    // Reset counters if we're starting fresh
+    totalEvents = 0;
+    securityAlerts = 0;
+    activeConnections.clear();
+  }
   if (data.log) {
     addLogEntry(data.log);
   }
   if (data.stats) {
-    updateStats(data.stats);
+    // Only update stats if we're capturing
+    if (isCapturing) {
+      updateStats(data.stats);
+    }
+  }
+});
+
+// Add new event handler for capture status
+socket.on("capture_status", function (data) {
+  if (data.status === "stopped") {
+    // Reset all counters when capture is stopped
+    totalEvents = 0;
+    securityAlerts = 0;
+    activeConnections.clear();
+    updateStats({
+      packets_analyzed: 0,
+      threats_detected: 0,
+      active_ips: 0,
+      scan_status: "Normal",
+      uptime_seconds: 0,
+    });
   }
 });
 
@@ -474,100 +541,193 @@ function removeHighlights(element) {
 }
 
 function initializeCapture() {
-  const startBtn = document.getElementById('startCapture');
-  const stopBtn = document.getElementById('stopCapture');
-  const pauseBtn = document.getElementById('toggleCapture');
-  const controlPanel = document.querySelector('.control-panel');
+  const startBtn = document.getElementById("startCapture");
+  const stopBtn = document.getElementById("stopCapture");
+  const pauseBtn = document.getElementById("toggleCapture");
+  const controlPanel = document.querySelector(".control-panel");
 
-  // Ensure capture is stopped at startup
+  // Initialize state
   isCapturing = false;
   isCapturePaused = false;
   queuedLogs = [];
 
   function updateButtonStates() {
-    // Update button states
     startBtn.disabled = isCapturing;
     stopBtn.disabled = !isCapturing;
     pauseBtn.disabled = !isCapturing;
 
-    // Update button appearances
-    startBtn.classList.toggle('active', isCapturing);
-    stopBtn.classList.toggle('stop', isCapturing);
-    pauseBtn.classList.toggle('paused', isCapturePaused);
+    startBtn.classList.toggle("active", isCapturing);
+    stopBtn.classList.toggle("stop", isCapturing);
+    pauseBtn.classList.toggle("paused", isCapturePaused);
 
-    // Update pause button text
-    pauseBtn.innerHTML = isCapturePaused ? 
-        `<span class="icon">▶️</span><span class="btn-text">Resume Capture</span>` :
-        `<span class="icon">⏸️</span><span class="btn-text">Pause Capture</span>`;
+    // Update pause button text and icon
+    pauseBtn.innerHTML = isCapturePaused
+      ? `<span class="icon">▶️</span><span class="btn-text">Resume Capture</span>`
+      : `<span class="icon">⏸️</span><span class="btn-text">Pause Capture</span>`;
 
-    // Update status text
-    controlPanel.setAttribute('data-status', 
-        !isCapturing ? 'Capture Stopped' :
-        isCapturePaused ? 'Capture Paused' :
-        'Capturing...'
+    controlPanel.setAttribute(
+      "data-status",
+      !isCapturing
+        ? "Capture Stopped"
+        : isCapturePaused
+        ? "Capture Paused"
+        : "Capturing..."
     );
-
-    console.log('Button states updated:', {
-        isCapturing,
-        isCapturePaused,
-        startDisabled: startBtn.disabled,
-        stopDisabled: stopBtn.disabled,
-        pauseDisabled: pauseBtn.disabled
-    });
   }
-
-  // Connect to socket but don't start capture
-  activeSocket = io("http://localhost:5000", {
-    transports: ['websocket', 'polling'],
-    reconnectionDelay: 1000,
-    reconnectionDelayMax: 5000,
-    timeout: 5000,
-    autoConnect: true
-  });
-
-  activeSocket.on('connect', () => {
-    console.log('Connected to server');
-    showConnectionStatus('Connected - Ready to capture', 'success');
-    // Ensure we're in a stopped state on connect
-    isCapturing = false;
-    updateButtonStates();
-  });
-
-  activeSocket.on('capture_status', (data) => {
-    console.log('Capture status received:', data.status);
-    isCapturing = data.status === 'started';
-    if (!isCapturing) {
-      isCapturePaused = false;
-      queuedLogs = [];
-    }
-    updateButtonStates();
-  });
 
   function startCapture() {
     if (isCapturing) return;
-    console.log('Requesting capture start...');
-    activeSocket.emit('start_capture');
+
+    // Reset all counters and state
+    totalEvents = 0;
+    securityAlerts = 0;
+    activeConnections.clear();
+
+    // Clear the display
+    clearLogs();
+
+    isCapturing = true;
+    isCapturePaused = false;
+    activeSocket.emit("start_capture");
+    showConnectionStatus("Starting capture...", "success");
+    updateButtonStates();
   }
 
   function stopCapture() {
     if (!isCapturing) return;
-    console.log('Requesting capture stop...');
-    activeSocket.emit('stop_capture');
+
+    isCapturing = false;
+    isCapturePaused = false;
+    activeSocket.emit("stop_capture");
+
+    // Update status message for stopped state
+    showConnectionStatus("Capture Stopped, Press Start to Begin", "info");
+
+    // Reset counters and display
+    totalEvents = 0;
+    securityAlerts = 0;
+    activeConnections.clear();
+
+    updateStats({
+      packets_analyzed: 0,
+      threats_detected: 0,
+      active_ips: 0,
+      scan_status: "Normal",
+      uptime_seconds: 0,
+    });
+
+    updateButtonStates();
   }
 
+  // Socket event handlers
+  activeSocket = io("http://localhost:5000", {
+    transports: ["websocket", "polling"],
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000,
+    timeout: 5000,
+    autoConnect: true,
+  });
+
+  activeSocket.on("connect", () => {
+    console.log("Connected to server");
+    showConnectionStatus("Connected - Ready to capture", "success");
+    isCapturing = false;
+    isCapturePaused = false;
+    updateButtonStates();
+  });
+
+  activeSocket.on("capture_status", function (data) {
+    console.log("Capture status received:", data);
+    isCapturing = data.status === "started";
+
+    if (data.status === "stopped") {
+      // Reset everything on stop
+      totalEvents = 0;
+      securityAlerts = 0;
+      activeConnections.clear();
+
+      if (data.stats) {
+        updateStats(data.stats);
+      }
+    }
+
+    updateButtonStates();
+  });
+
+  activeSocket.on("new_log", function (data) {
+    if (!isCapturing || !data) return;
+
+    if (isCapturePaused) {
+      queuedLogs.push(data.log);
+    } else {
+      if (data.log) addLogEntry(data.log);
+      if (data.stats) updateStats(data.stats);
+    }
+  });
+
   // Add event listeners
-  startBtn.addEventListener('click', startCapture);
-  stopBtn.addEventListener('click', stopCapture);
-  pauseBtn.addEventListener('click', toggleCapture);
+  startBtn.addEventListener("click", startCapture);
+  stopBtn.addEventListener("click", stopCapture);
+  pauseBtn.addEventListener("click", toggleCapture);
 
   // Initial button states
   updateButtonStates();
 }
 
-// Update your document ready handler
+function exportLogs() {
+  if (isCapturing && !isCapturePaused) {
+    alert("Please pause or stop capture before exporting logs");
+    return;
+  }
+
+  const table = document.getElementById("logs-table");
+  const rows = Array.from(table.querySelectorAll("tbody tr"));
+
+  // Create CSV content
+  let csvContent =
+    "Time,Source IP,Destination IP,Event Type,Details,Severity\n";
+
+  rows.forEach((row) => {
+    const cells = Array.from(row.cells);
+    const rowData = cells.map((cell) => `"${cell.textContent.trim()}"`);
+    csvContent += rowData.join(",") + "\n";
+  });
+
+  // Create and trigger download
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+
+  link.href = window.URL.createObjectURL(blob);
+  link.download = `network_security_logs_${timestamp}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+// Initialize everything when the document is ready
 document.addEventListener("DOMContentLoaded", () => {
+  // Initialize core functionality
   initializeStatBoxes();
   initializeSearch();
   initializeCapture();
-  // ... your existing initialization code ...
+
+  // Set initial UI state
+  const elements = ensureElements();
+  if (elements.logsTable) {
+    elements.logsTable.innerHTML = "";
+  }
+
+  // Initialize event listeners for filters
+  const eventTypeSelect = document.getElementById("eventType");
+  if (eventTypeSelect) {
+    eventTypeSelect.addEventListener("change", function () {
+      filterLogsByType(this.value);
+    });
+  }
+
+  // Set initial connection status
+  showConnectionStatus("Connecting to server...", "info");
+
+  console.log("Application initialized successfully");
 });
