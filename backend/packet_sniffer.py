@@ -42,16 +42,38 @@ def handle_disconnect():
 @socketio.on('start_capture')
 def handle_start_capture():
     global is_capturing
+    print("Start capture requested")
+    reset_stats()  # Reset stats first
     is_capturing = True
-    print("Capture started")
-    socketio.emit('capture_status', {'status': 'started'})
+    socketio.emit('capture_status', {
+        'status': 'started',
+        'stats': {
+            'packets_analyzed': 0,
+            'threats_detected': 0,
+            'active_ips': 0,
+            'scan_status': 'Normal',
+            'uptime_seconds': 0
+        }
+    })
+    print("Capture started with reset stats")
 
 @socketio.on('stop_capture')
 def handle_stop_capture():
     global is_capturing
+    print("Stop capture requested")
     is_capturing = False
-    print("Capture stopped")
-    socketio.emit('capture_status', {'status': 'stopped'})
+    reset_stats()  # Reset stats when stopping
+    socketio.emit('capture_status', {
+        'status': 'stopped',
+        'stats': {
+            'packets_analyzed': 0,
+            'threats_detected': 0,
+            'active_ips': 0,
+            'scan_status': 'Normal',
+            'uptime_seconds': 0
+        }
+    })
+    print("Capture stopped with reset stats")
 
 def detect_threat(packet):
     if not is_capturing:
@@ -137,13 +159,44 @@ def format_stats():
     current_time = time.time()
     uptime = int(current_time - stats["start_time"])
     return {
-        "status": "active",
-        "uptime_seconds": uptime,
-        "packets_analyzed": stats["packets_analyzed"],
-        "threats_detected": stats["threats_detected"],
-        "active_ips": len(stats["active_ips"]),
-        "scan_status": "Normal" if stats["threats_detected"] == 0 else "Threats Detected"
+        "packets_analyzed": stats.get("packets_analyzed", 0),
+        "threats_detected": stats.get("threats_detected", 0),
+        "active_ips": len(stats.get("active_ips", set())),
+        "scan_status": "Normal",
+        "uptime_seconds": uptime
     }
+
+def reset_stats():
+    global stats
+    stats["packets_analyzed"] = 0
+    stats["threats_detected"] = 0
+    stats["start_time"] = time.time()
+    stats["last_scan_time"] = None
+    stats["active_ips"] = set()
+    stats["logs"] = []
+
+# Add new route for clearing logs
+@app.route('/clear_logs', methods=['POST'])
+def clear_logs():
+    global stats
+    # Reset all stats and logs
+    stats = {
+        "packets_analyzed": 0,
+        "start_time": time.time(),
+        "threats_detected": 0,
+        "last_scan_time": None,
+        "active_ips": set(),
+        "logs": []  # Clear the logs array
+    }
+    return jsonify({"status": "success", "message": "Logs cleared successfully"})
+
+# Update the get_logs route to respect cleared state
+@app.route('/get_logs')
+def get_logs():
+    return jsonify({
+        "logs": stats.get("logs", []),
+        "stats": format_stats()
+    })
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
