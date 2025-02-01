@@ -27,6 +27,7 @@ Project Structure
 
 A quick look at the folder layout shows how the project is organized:
 
+```
 network-security-dashboard/
 ├── backend/
 │   ├── packet_sniffer.py     # Captures packets, analyzes data, and runs the WebSocket server
@@ -38,6 +39,7 @@ network-security-dashboard/
 │   ├── script.js             # Contains frontend logic and real-time update functions
 │   └── package.json          # Lists Node.js dependencies for frontend development
 └── README.md                 # This documentation file
+```
 
 Why this matters:
 Understanding the project structure helps you know where to look if you need to change the backend logic, update the user interface, or manage dependencies.
