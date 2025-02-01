@@ -154,6 +154,9 @@ Basic Operations
 	•	Click “Export Logs as CSV” to save the current view.
 	•	Files are saved with a timestamp for easy identification.
 
+Why these steps?
+They provide a simple way to start monitoring, analyze, and export data, ensuring you get the most out of the tool.
+
 Code Examples
 
 Event Detection Logic (Backend)
@@ -206,8 +209,8 @@ activeSocket.on("new_log", function (data) {
   }
 });
 
-
-I've included these code examples to provide insight into how the dashboard processes and displays data and document for developers to help better understand the inner workings of the application.
+Why these code examples?
+They provide insight into how the dashboard processes and displays data, helping developers understand the inner workings of the application.
 
 Troubleshooting
 
@@ -223,14 +226,32 @@ Common Issues and How to Solve Them
 	•	Check the browser console for errors.
 	•	Ensure firewall settings allow the connections.
 
+Why these steps?
+They help you quickly identify and resolve common problems, ensuring smooth operation of the dashboard.
 
 Contributing
 
 If you’d like to contribute, please read our Contributing Guidelines and Code of Conduct before submitting a pull request.
 
+Why contribute?
+Community contributions help improve the project and make it more robust for everyone.
+
 License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
 
+Why include a license?
+A license clarifies how others can use, modify, and distribute your project.
 
+Support
 
+If you run into issues or have questions, here’s how you can get help:
+	•	GitHub Issues: Report a bug or request a feature
+	•	Documentation: Visit the Wiki for additional information.
+
+Why provide support links?
+They offer users and developers a way to get assistance and contribute to project improvements.
+
+This revised README is designed to guide new users step by step, offering both a high-level overview and detailed instructions where needed. Feel free to adjust any sections further based on your project’s evolving needs.
+
+Let me know if you have any questions or need further clarification on any section!
