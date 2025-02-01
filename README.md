@@ -2,6 +2,7 @@ Network Security Monitoring Dashboard
 
 A real-time network traffic analysis tool that gives you instant visibility into network events, security alerts, and connection details through an interactive web interface. This dashboard captures and analyzes network packets, detecting potential security threats and unusual network behavior.
 
+```
 Table of Contents
 	1.	Overview
 	2.	Project Structure
@@ -15,6 +16,7 @@ Table of Contents
 	10.	Contributing
 	11.	License
 	12.	Support
+```
 
 Overview
 
