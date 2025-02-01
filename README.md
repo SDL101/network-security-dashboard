@@ -41,9 +41,6 @@ network-security-dashboard/
 └── README.md                 # This documentation file
 ```
 
-### Why this matters:
-Understanding the project structure helps you know where to look if you need to change the backend logic, update the user interface, or manage dependencies.
-
 ## Key Features
 - **Real-time monitoring:** Get live updates on network traffic.
 - **Automatic threat detection:** Alerts you when unusual activity is detected.
