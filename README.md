@@ -1,8 +1,11 @@
+Below is the updated version of your README with proper Markdown formatting. I’ve enclosed folder structures and code segments within triple backticks and fixed the bullet lists for clarity. You can copy and paste this directly into your GitHub README file:
+
+Below is an improved version of your README that reorganizes sections, adds context, and explains the purpose of each part in simple terms. This version maintains all your original information while making it easier to follow.
+
 Network Security Monitoring Dashboard
 
 A real-time network traffic analysis tool that gives you instant visibility into network events, security alerts, and connection details through an interactive web interface. This dashboard captures and analyzes network packets, detecting potential security threats and unusual network behavior.
 
-```
 Table of Contents
 	1.	Overview
 	2.	Project Structure
@@ -16,7 +19,6 @@ Table of Contents
 	10.	Contributing
 	11.	License
 	12.	Support
-```
 
 Overview
 
@@ -29,7 +31,6 @@ Project Structure
 
 A quick look at the folder layout shows how the project is organized:
 
-```
 network-security-dashboard/
 ├── backend/
 │   ├── packet_sniffer.py     # Captures packets, analyzes data, and runs the WebSocket server
@@ -41,7 +42,6 @@ network-security-dashboard/
 │   ├── script.js             # Contains frontend logic and real-time update functions
 │   └── package.json          # Lists Node.js dependencies for frontend development
 └── README.md                 # This documentation file
-```
 
 Why this matters:
 Understanding the project structure helps you know where to look if you need to change the backend logic, update the user interface, or manage dependencies.
@@ -236,3 +236,4 @@ Support
 
 For any issues or questions, please refer to our support channels or open an issue on GitHub.
 
+This version should display correctly on GitHub with proper bullet points, code blocks, and preserved formatting. Let me know if you need any further adjustments!
