@@ -5,22 +5,24 @@ NOTE: This project is under development and some features I've listed below are 
 A real-time network traffic analysis tool that gives you instant visibility into network events, security alerts, and connection details through an interactive web interface. This dashboard captures and analyzes network packets, detecting potential security threats and unusual network behavior.
 
 ## Table of Contents
-1. Overview  
-2. Project Structure  
-3. Key Features  
-4. System Requirements  
-5. Installation  
-6. Running the Application  
-7. Usage Guide  
-8. Code Examples  
-9. Troubleshooting  
-10. Contributing  
-11. License  
-12. Support  
+
+1. Overview
+2. Project Structure
+3. Key Features
+4. System Requirements
+5. Installation
+6. Running the Application
+7. Usage Guide
+8. Code Examples
+9. Troubleshooting
+10. Contributing
+11. License
+12. Support
 
 ## Overview
 
 This project is designed to monitor network traffic in real time. It does the following:
+
 - **Captures network packets:** Constantly listens for network traffic.
 - **Analyzes traffic:** Detects potential security threats.
 - **Displays data interactively:** Uses a web interface to show real-time events, statistics, and alerts.
@@ -44,6 +46,7 @@ network-security-dashboard/
 ```
 
 ## Key Features
+
 - **Real-time monitoring:** Get live updates on network traffic.
 - **Automatic threat detection:** Alerts you when unusual activity is detected.
 - **Interactive filtering and search:** Easily find the information you need.
@@ -54,23 +57,26 @@ network-security-dashboard/
 ## System Requirements
 
 ### Operating Systems
+
 - Windows 10+
 - macOS 10.15+
 - Linux
 
 ### Hardware
+
 - **RAM:** Minimum 4GB
 - **Storage:** At least 1GB free space
 
 ### Software Dependencies
-1. **Python 3.8+**  
+
+1. **Python 3.8+**
    - [Download Python](https://www.python.org/downloads/)
    - **Purpose:** Runs the backend packet capture and analysis.
-2. **Node.js (LTS)**  
+2. **Node.js (LTS)**
    - [Download Node.js](https://nodejs.org/)
    - **Purpose:** Runs the frontend development server.
    - **Note:** Minimum version 14.x.
-3. **Git**  
+3. **Git**
    - [Download Git](https://git-scm.com/)
    - **Purpose:** For version control and downloading the project repository.
 
@@ -128,11 +134,11 @@ This installs all required packages to run the frontend development server.
 Make sure your virtual environment is active, then run:
 
 ```sh
-python backend/packet_sniffer.py
+sudo python backend/packet_sniffer.py
 ```
 
 **Why this step?**  
-This starts the packet capture and analysis engine that monitors network traffic.
+This gives admin rights and starts the packet capture and analysis engine that monitors network traffic.
 
 ### 2. Start the Frontend Development Server
 
@@ -152,6 +158,7 @@ You should automatically be brought here when you run 'npm start', but if not op
 ## Usage Guide
 
 ### Basic Operations
+
 1. **Start Monitoring:**
    - Click the “Start Capture” button on the dashboard.
    - **Note:** You may need administrator privileges.
@@ -203,6 +210,7 @@ activeSocket.on("new_log", function (data) {
 ## Troubleshooting
 
 ### Common Issues and How to Solve Them
+
 1. **Permission Errors:**
    - **Windows:** Run the terminal as Administrator.
    - **Linux/macOS:** Use `sudo python backend/packet_sniffer.py` if needed.
