@@ -1,11 +1,14 @@
-from flask_sqlalchemy import SQLAlchemy
+# === Imports: Bring in necessary modules ===
+from flask_sqlalchemy import SQLAlchemy  # Import SQLAlchemy
 
-db = SQLAlchemy()
+# === DB Setup: Initialize the database instance ===
+db = SQLAlchemy()  # Init DB
 
+# === Model Definition: Define LogEntry model for logs table ===
 class LogEntry(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.String(100), nullable=False)
-    source_ip = db.Column(db.String(100), nullable=False)
-    destination_ip = db.Column(db.String(100), nullable=False)
-    event_type = db.Column(db.String(100), nullable=False)
-    details = db.Column(db.Text, nullable=True)
+    id = db.Column(db.Integer, primary_key=True)  # Unique ID
+    timestamp = db.Column(db.String(100), nullable=False)  # When log happened
+    source_ip = db.Column(db.String(100), nullable=False)  # Orig IP
+    destination_ip = db.Column(db.String(100), nullable=False)  # Dest IP
+    event_type = db.Column(db.String(100), nullable=False)  # Type of event
+    details = db.Column(db.Text, nullable=True)  # Extra info
