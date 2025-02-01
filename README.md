@@ -1,5 +1,7 @@
 # Network Security Monitoring Dashboard
 
+NOTE: This project is under development and some features I've listed below are not functional yet.
+
 A real-time network traffic analysis tool that gives you instant visibility into network events, security alerts, and connection details through an interactive web interface. This dashboard captures and analyzes network packets, detecting potential security threats and unusual network behavior.
 
 ## Table of Contents
@@ -145,7 +147,7 @@ npm start
 This serves the interactive dashboard on your browser.
 
 **Access the Dashboard:**  
-Open your browser and go to `http://localhost:8000`.
+You should automatically be brought here when you run 'npm start', but if not open your browser and go to `http://localhost:8000`.
 
 ## Usage Guide
 
