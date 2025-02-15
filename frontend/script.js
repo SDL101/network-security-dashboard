@@ -1,28 +1,34 @@
+import { createPinia } from "pinia";
+import { useNetworkStore } from "./stores/networkStore";
+
+const pinia = createPinia();
+const networkStore = useNetworkStore();
+
 // Establish a Socket.IO connection to the server with specific transport options and reconnection settings
 const socket = io("http://localhost:5000", {
   transports: ["websocket", "polling"], // Use WebSocket and fallback to polling if needed
-  reconnectionAttempts: 5,              // Try reconnecting 5 times before giving up
-  reconnectionDelay: 1000,              // Wait 1 second between reconnection attempts
+  reconnectionAttempts: 5, // Try reconnecting 5 times before giving up
+  reconnectionDelay: 1000, // Wait 1 second between reconnection attempts
 });
 
 // Global counters and state variables
-let totalEvents = 0;                       // Total number of events logged
-let securityAlerts = 0;                    // Number of security alerts detected
-let activeConnections = new Set();         // Set of active connections (unique IPs)
-let isCapturePaused = false;               // Flag to indicate if capture is paused
-let queuedLogs = [];                       // Array to store logs while capture is paused
-let isCapturing = false;                   // Flag to indicate if capture is active
-let activeSocket = null;                   // Reference to the active Socket.IO connection used for capturing
-let connectionAttempts = 0;                // Count of connection attempts
+let totalEvents = 0; // Total number of events logged
+let securityAlerts = 0; // Number of security alerts detected
+let activeConnections = new Set(); // Set of active connections (unique IPs)
+let isCapturePaused = false; // Flag to indicate if capture is paused
+let queuedLogs = []; // Array to store logs while capture is paused
+let isCapturing = false; // Flag to indicate if capture is active
+let activeSocket = null; // Reference to the active Socket.IO connection used for capturing
+let connectionAttempts = 0; // Count of connection attempts
 
 // Search state object to keep track of current search/filter criteria
 const searchState = {
-  ip: "",         // IP address to filter by
+  ip: "", // IP address to filter by
   ipType: "both", // Type of IP search: both, source, or destination
-  port: "",       // Port number to filter by
-  severity: "",   // Severity level filter (high, medium, low)
-  startTime: "",  // Start time for filtering logs
-  endTime: "",    // End time for filtering logs
+  port: "", // Port number to filter by
+  severity: "", // Severity level filter (high, medium, low)
+  startTime: "", // Start time for filtering logs
+  endTime: "", // End time for filtering logs
 };
 
 // Global variable to track if capture was previously stopped
@@ -74,24 +80,27 @@ function updateStats(stats) {
   const elements = ensureElements();
 
   if (elements.totalEvents) {
-    elements.totalEvents.textContent = stats.packets_analyzed || 0;
+    elements.totalEvents.textContent = networkStore.totalEvents || 0;
   }
   if (elements.securityAlerts) {
-    elements.securityAlerts.textContent = stats.threats_detected || 0;
+    elements.securityAlerts.textContent = networkStore.securityAlerts || 0;
   }
   if (elements.activeConnections) {
-    elements.activeConnections.textContent = stats.active_ips || 0;
+    elements.activeConnections.textContent =
+      networkStore.activeConnections.size || 0;
   }
   if (elements.statusIndicator) {
     // Set the class and inner HTML based on current network status and uptime
     elements.statusIndicator.className = `status-indicator ${
-      stats.threats_detected > 0 ? "alert" : "safe"
+      networkStore.securityAlerts > 0 ? "alert" : "safe"
     }`;
     elements.statusIndicator.innerHTML = `
       <h3>Network Status</h3>
-      <span class="status-text">${stats.scan_status || "Monitoring"}</span>
+      <span class="status-text">${
+        networkStore.scan_status || "Monitoring"
+      }</span>
       <span class="uptime">Uptime: ${formatUptime(
-        stats.uptime_seconds || 0
+        networkStore.uptime_seconds || 0
       )}</span>
     `;
   }
@@ -149,6 +158,7 @@ function addLogEntry(log) {
   if (activeFilter) {
     filterLogs(activeFilter.dataset.filter);
   }
+  updateExportButtonState();
 }
 
 // Clear all logs from the UI and reset state variables; also trigger backend log clearing via API
@@ -206,6 +216,7 @@ function clearLogs() {
     .catch((error) => {
       console.error("Error clearing logs:", error);
     });
+  updateExportButtonState();
 }
 
 // Load initial logs from the backend when capture is active
@@ -281,19 +292,14 @@ socket.on("new_log", function (data) {
 
 // Handle capture status updates from the server (e.g., when capture stops)
 socket.on("capture_status", function (data) {
-  if (data.status === "stopped") {
-    // Reset all counters and clear active connections when capture stops
-    totalEvents = 0;
-    securityAlerts = 0;
-    activeConnections.clear();
-    updateStats({
-      packets_analyzed: 0,
-      threats_detected: 0,
-      active_ips: 0,
-      scan_status: "Normal",
-      uptime_seconds: 0,
-    });
+  console.log("Capture status received:", data);
+  networkStore.isCapturing = data.status === "started";
+
+  if (data.stats) {
+    networkStore.updateStats(data.stats);
   }
+
+  updateButtonStates();
 });
 
 // Handle periodic heartbeat messages from the server to update stats and show network status
@@ -616,6 +622,7 @@ function initializeCapture() {
         ? "Capture Paused"
         : "Capturing..."
     );
+    updateExportButtonState();
   }
 
   // Function to start capturing logs
@@ -650,20 +657,7 @@ function initializeCapture() {
     // Update connection status to reflect that capture has stopped
     showConnectionStatus("Capture Stopped, Press Start to Begin", "info");
 
-    // Reset counters and active connections
-    totalEvents = 0;
-    securityAlerts = 0;
-    activeConnections.clear();
-
-    // Update stats display to reflect reset state
-    updateStats({
-      packets_analyzed: 0,
-      threats_detected: 0,
-      active_ips: 0,
-      scan_status: "Normal",
-      uptime_seconds: 0,
-    });
-
+    // Don't reset the counters, just update the button states
     updateButtonStates();
   }
 
@@ -688,7 +682,7 @@ function initializeCapture() {
   // Handle capture status messages from the server
   activeSocket.on("capture_status", function (data) {
     console.log("Capture status received:", data);
-    isCapturing = data.status === "started";
+    networkStore.isCapturing = data.status === "started";
 
     if (data.status === "stopped") {
       // On stop, reset counters and clear active connections
@@ -727,14 +721,14 @@ function initializeCapture() {
 
 // Export logs as a CSV file from the logs table
 function exportLogs() {
-  // Do not allow export while capture is active and not paused
-  if (isCapturing && !isCapturePaused) {
-    alert("Please pause or stop capture before exporting logs");
+  // Verify there are logs to export
+  const table = document.getElementById("logs-table");
+  const rows = table.querySelectorAll("tbody tr");
+
+  if (rows.length === 0) {
+    alert("No logs to export");
     return;
   }
-
-  const table = document.getElementById("logs-table");
-  const rows = Array.from(table.querySelectorAll("tbody tr"));
 
   // Create CSV header row
   let csvContent =
@@ -747,16 +741,26 @@ function exportLogs() {
     csvContent += rowData.join(",") + "\n";
   });
 
-  // Create a Blob from the CSV content and trigger a download
+  // Create and trigger download
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
 
   link.href = window.URL.createObjectURL(blob);
   link.download = `network_security_logs_${timestamp}.csv`;
+  link.style.display = "none";
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+}
+
+// Enable or disable the export logs button based on capture state
+function updateExportButtonState() {
+  const exportBtn = document.getElementById("exportLogs");
+  if (!exportBtn) return;
+
+  // Only enable the button when capture is stopped
+  exportBtn.disabled = isCapturing;
 }
 
 // === Initialization ===
@@ -786,6 +790,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Set initial connection status message on the UI
   showConnectionStatus("Connecting to server...", "info");
+  updateExportButtonState();
 
   console.log("Application initialized successfully");
 });

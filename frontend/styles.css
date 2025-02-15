@@ -1,17 +1,17 @@
 /* === CSS Variables: Define theme colors and styling constants === */
 :root {
-  --primary: #3699ff;                /* Primary blue color */
-  --primary-glow: #1a7ff9;           /* Glowing variant of primary color */
-  --secondary: #0a1929;              /* Secondary dark color */
-  --background: #0f1218;             /* Background color for the app */
-  --surface: #1a1f2b;                /* Surface color for cards and panels */
-  --text: #e6e9f0;                   /* Main text color */
-  --text-secondary: #a0a8b9;         /* Secondary text color */
-  --danger: #f64e60;                 /* Color for danger alerts */
-  --warning: #ffa800;                /* Warning color */
-  --info: #00d2d3;                   /* Informational color */
-  --success: #0bb783;                /* Success color */
-  --border: rgba(230, 233, 240, 0.1);  /* Border color with transparency */
+  --primary: #3699ff; /* Primary blue color */
+  --primary-glow: #1a7ff9; /* Glowing variant of primary color */
+  --secondary: #0a1929; /* Secondary dark color */
+  --background: #0f1218; /* Background color for the app */
+  --surface: #1a1f2b; /* Surface color for cards and panels */
+  --text: #e6e9f0; /* Main text color */
+  --text-secondary: #a0a8b9; /* Secondary text color */
+  --danger: #f64e60; /* Color for danger alerts */
+  --warning: #ffa800; /* Warning color */
+  --info: #00d2d3; /* Informational color */
+  --success: #0bb783; /* Success color */
+  --border: rgba(230, 233, 240, 0.1); /* Border color with transparency */
 }
 
 /* === Global Styles: Base styling for the body element === */

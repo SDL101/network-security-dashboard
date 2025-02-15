@@ -68,19 +68,12 @@ def handle_stop_capture():
     global is_capturing
     print("Stop capture requested")
     is_capturing = False  # Deactivate capture flag
-    reset_stats()  # Reset stats when stopping capture to clear previous data
-    # Inform the client that capture has stopped along with cleared stats
+    # Don't reset stats, just emit current values
     socketio.emit('capture_status', {
         'status': 'stopped',
-        'stats': {
-            'packets_analyzed': 0,
-            'threats_detected': 0,
-            'active_ips': 0,
-            'scan_status': 'Normal',
-            'uptime_seconds': 0
-        }
+        'stats': format_stats()  # Send current stats instead of zeroed stats
     })
-    print("Capture stopped with reset stats")
+    print("Capture stopped")
 
 # === Threat Detection: Analyze packets to detect potential network threats ===
 def detect_threat(packet):
