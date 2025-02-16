@@ -22,15 +22,20 @@ socketio = SocketIO(
 )
 
 # === Global Vars: Initialize capture flag and statistics dictionary ===
-is_capturing = False  # Flag to indicate whether packet capture is active
-stats = {
-    "packets_analyzed": 0,  # Total number of packets analyzed
-    "start_time": time.time(),  # Timestamp when the monitoring started
-    "threats_detected": 0,  # Total number of threats detected during monitoring
-    "last_scan_time": None,  # Timestamp of the last packet scan
-    "active_ips": set(),  # Set of unique IP addresses encountered
-    "logs": []  # List to store log entries for each detected event
-}
+is_capturing = False
+
+# Single source of truth for stats initialization
+def get_initial_stats():
+    return {
+        "packets_analyzed": 0,
+        "start_time": time.time(),
+        "threats_detected": 0,
+        "last_scan_time": None,
+        "active_ips": set(),
+        "logs": []
+    }
+
+stats = get_initial_stats()
 
 # === SocketIO Event Handlers: Manage client connections and capture commands ===
 @socketio.on('connect')
@@ -68,10 +73,10 @@ def handle_stop_capture():
     global is_capturing
     print("Stop capture requested")
     is_capturing = False  # Deactivate capture flag
-    # Don't reset stats, just emit current values
+    # Don't reset stats, just emit curr vals
     socketio.emit('capture_status', {
         'status': 'stopped',
-        'stats': format_stats()  # Send current stats instead of zeroed stats
+        'stats': format_stats()  # Send curr stats instead of zeroed stats
     })
     print("Capture stopped")
 
@@ -81,7 +86,7 @@ def detect_threat(packet):
     if not is_capturing:
         return
 
-    # Only process packets that have an IP layer
+    # Only process packets that have an IP layer, else return
     if not packet.haslayer(IP):
         return
 
@@ -89,15 +94,67 @@ def detect_threat(packet):
         # Update statistics for every processed packet
         stats["packets_analyzed"] += 1
         stats["last_scan_time"] = datetime.datetime.now()
-        # Track both source and destination IP addresses as active
-        stats["active_ips"].add(packet[IP].src)
+        stats["active_ips"].add(packet[IP].src) 
         stats["active_ips"].add(packet[IP].dst)
 
-        # Create a default log entry for normal traffic
+        # Protocol detection
+        protocol = "Other"
+        if packet.haslayer(TCP):
+            sport = packet[TCP].sport
+            dport = packet[TCP].dport
+            
+            # Some ommon web ports (HTTP/HTTPS). Work in prog - will keep adding to this 
+            if dport == 80 or sport == 80:
+                protocol = "HTTP"
+            elif dport == 443 or sport == 443:
+                protocol = "HTTPS"
+            # Email ports
+            elif dport == 25 or sport == 25:
+                protocol = "SMTP"
+            elif dport == 110 or sport == 110:
+                protocol = "POP3"
+            elif dport == 143 or sport == 143:
+                protocol = "IMAP"
+            # File transfer and remote access
+            elif dport == 22 or sport == 22:
+                protocol = "SSH"
+            elif dport == 21 or sport == 21:
+                protocol = "FTP"
+            elif dport == 3389 or sport == 3389:
+                protocol = "RDP"
+            # Database ports
+            elif dport == 3306 or sport == 3306:
+                protocol = "MySQL"
+            elif dport == 5432 or sport == 5432:
+                protocol = "PostgreSQL"
+            elif dport == 1433 or sport == 1433:
+                protocol = "MSSQL"
+            # Other common services
+            elif dport == 8080 or sport == 8080:
+                protocol = "HTTP-ALT"
+            else:
+                protocol = f"TCP ({dport})"
+            
+        elif packet.haslayer(UDP):
+            # Get UDP port information
+            sport = packet[UDP].sport
+            dport = packet[UDP].dport
+            # Identify common UDP services
+            if dport == 53 or sport == 53:
+                protocol = "DNS"
+            elif dport == 67 or dport == 68:
+                protocol = "DHCP"
+            else:
+                protocol = f"UDP ({dport})"
+        elif packet.haslayer('ICMP'):
+            protocol = "ICMP"
+
+        # Create a default log entry for normal traffic with enhanced protocol info
         log_entry = {
             "timestamp": str(datetime.datetime.now()),
             "source_ip": packet[IP].src,
             "destination_ip": packet[IP].dst,
+            "protocol": protocol,
             "event_type": "normal_traffic",
             "details": "Normal network traffic",
             "severity": "low"
@@ -138,12 +195,11 @@ def detect_threat(packet):
         if len(stats["logs"]) > 1000:
             stats["logs"].pop(0)
 
-        # Emit the new log and updated stats to connected clients in real-time
+        # Add this right after creating the log_entry
         socketio.emit("new_log", {
             "log": log_entry,
             "stats": format_stats()
         })
-        print(f"Emitted log: {log_entry['event_type']}", flush=True)
 
     except Exception as e:
         # Log any exceptions encountered during threat detection
@@ -190,27 +246,12 @@ def format_stats():
 # === Stats Reset: Reinitialize tracking statistics to their default states ===
 def reset_stats():
     global stats
-    stats["packets_analyzed"] = 0
-    stats["threats_detected"] = 0
-    stats["start_time"] = time.time()
-    stats["last_scan_time"] = None
-    stats["active_ips"] = set()
-    stats["logs"] = []
+    stats = get_initial_stats()
 
 # === API Endpoint: Clear logs and reset all statistics via a POST request ===
 @app.route('/clear_logs', methods=['POST'])
 def clear_logs():
-    global stats
-    # Reset stats and logs to default values
-    stats = {
-        "packets_analyzed": 0,
-        "start_time": time.time(),
-        "threats_detected": 0,
-        "last_scan_time": None,
-        "active_ips": set(),
-        "logs": []  # Clear the logs list
-    }
-    # Respond with a success message
+    reset_stats()  # Use existing function instead of duplicating logic
     return jsonify({"status": "success", "message": "Logs cleared successfully"})
 
 # === API Endpoint: Retrieve current logs and statistics via a GET request ===
