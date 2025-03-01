@@ -104,13 +104,15 @@ export const useNetworkStore = defineStore("network", {
       }
     },
 
-    filterLogsByType(eventType) {
-      if (!eventType) {
-        this.filteredLogs = [...this.logs];
+    filterLogsByType(filter) {
+      if (filter === "high_severity") {
+        this.filteredLogs = this.logs.filter((log) => log.severity === "high");
+      } else if (filter === "medium_severity") {
+        this.filteredLogs = this.logs.filter((log) => log.severity === "medium");
+      } else if (filter === "low_severity") {
+        this.filteredLogs = this.logs.filter((log) => log.severity === "low");
       } else {
-        this.filteredLogs = this.logs.filter(
-          (log) => log.event_type === eventType
-        );
+        this.filteredLogs = [...this.logs];
       }
     },
 

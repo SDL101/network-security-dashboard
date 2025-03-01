@@ -37,6 +37,9 @@
       class="event-type-select"
     >
       <option value="">All Events</option>
+      <option value="high_severity">High Severity</option>
+      <option value="medium_severity">Medium Severity</option>
+      <option value="low_severity">Low Severity</option>
       <option value="network_scan">Port Scans</option>
       <option value="large_packet">Large Packets</option>
       <option value="external_connection">External Connections</option>

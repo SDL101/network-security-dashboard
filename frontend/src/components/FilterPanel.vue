@@ -2,8 +2,9 @@
   <div class="filters">
     <select id="eventType" v-model="selectedEventType" @change="filterLogs">
       <option value="">All Events</option>
-      <option value="network_scan">Port Scans</option>
-      <option value="large_packet">Large Packets</option>
+      <option value="high_severity">High Severity</option>
+      <option value="medium_severity">Medium Severity</option>
+      <option value="low_severity">Low Severity</option>
       <option value="external_connection">External Connections</option>
       <option value="normal_traffic">Normal Traffic</option>
     </select>
