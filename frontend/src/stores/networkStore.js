@@ -128,6 +128,18 @@ export const useNetworkStore = defineStore("network", {
         );
       } else if (filter === "low_severity") {
         this.filteredLogs = this.logs.filter((log) => log.severity === "low");
+      } else if (filter === "external_connection") {
+        this.filteredLogs = this.logs.filter(
+          (log) => log.event_type === "external_connection"
+        );
+      } else if (filter === "normal_traffic") {
+        this.filteredLogs = this.logs.filter(
+          (log) => log.event_type === "normal_traffic"
+        );
+      } else if (filter === "network_scan") {
+        this.filteredLogs = this.logs.filter(
+          (log) => log.event_type === "network_scan"
+        );
       } else {
         this.filteredLogs = [...this.logs];
       }
@@ -138,7 +150,7 @@ export const useNetworkStore = defineStore("network", {
     },
 
     exportLogs() {
-      const csv = this.convertLogsToCSV(this.logs);
+      const csv = this.convertLogsToCSV(this.filteredLogs);
       const blob = new Blob([csv], { type: "text/csv" });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");

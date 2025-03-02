@@ -37,7 +37,7 @@
           <td>{{ formatTime(log.timestamp) }}</td>
           <td>
             <span class="event-type" :class="log.event_type.toLowerCase()">
-              {{ log.event_type }}
+              {{ formatEventType(log.event_type) }}
             </span>
           </td>
           <td>{{ log.source_ip }}</td>
@@ -98,6 +98,13 @@ onMounted(() => {
 
 const formatTime = (timestamp) => {
   return new Date(timestamp).toLocaleString();
+};
+
+const formatEventType = (eventType) => {
+  return eventType
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 };
 </script>
 
@@ -348,5 +355,4 @@ tr.normal_traffic td {
   background-color: #eee;
   cursor: not-allowed;
 }
-
 </style>
