@@ -1,5 +1,21 @@
 <template>
   <div class="logs-container">
+    <!-- Debug dropdown -->
+    <details class="debug-dropdown">
+      <summary>Dev Tools Debug</summary>
+      <div
+        style="background: #f5f5f5; padding: 10px; margin: 10px 0; color: #888"
+      >
+        Total logs: {{ networkStore.filteredLogs.length }}
+        <br />
+        Current page: {{ networkStore.currentPage }}
+        <br />
+        Items per page: {{ networkStore.itemsPerPage }}
+        <br />
+        Paginated logs length: {{ networkStore.paginatedLogs.length }}
+      </div>
+    </details>
+
     <table class="logs-table">
       <thead>
         <tr>
@@ -14,7 +30,7 @@
       </thead>
       <tbody>
         <tr
-          v-for="log in networkStore.filteredLogs"
+          v-for="log in networkStore.paginatedLogs"
           :key="log.id"
           :class="[log.event_type.toLowerCase(), log.severity.toLowerCase()]"
         >
@@ -40,6 +56,29 @@
         </tr>
       </tbody>
     </table>
+
+    <div class="pagination">
+      <button
+        :disabled="networkStore.currentPage === 1"
+        @click="networkStore.setPage(networkStore.currentPage - 1)"
+      >
+        Previous
+      </button>
+
+      <span>
+        Page {{ networkStore.currentPage }} of {{ networkStore.totalPages }} ({{
+          networkStore.filteredLogs.length
+        }}
+        total logs)
+      </span>
+
+      <button
+        :disabled="networkStore.currentPage === networkStore.totalPages"
+        @click="networkStore.setPage(networkStore.currentPage + 1)"
+      >
+        Next
+      </button>
+    </div>
   </div>
 </template>
 
@@ -287,4 +326,27 @@ tr.normal_traffic td {
   background: #009688;
   color: white;
 }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.pagination button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  background-color: #eee;
+  cursor: not-allowed;
+}
+
 </style>

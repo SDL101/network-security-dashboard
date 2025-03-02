@@ -3,6 +3,8 @@ import { io } from "socket.io-client";
 
 export const useNetworkStore = defineStore("network", {
   state: () => ({
+    currentPage: 1,
+    itemsPerPage: 20,
     socket: null,
     totalEvents: 0,
     securityAlerts: 0,
@@ -21,6 +23,18 @@ export const useNetworkStore = defineStore("network", {
       uptime_seconds: 0,
     },
   }),
+
+  getters: {
+    paginatedLogs(state) {
+      const start = (state.currentPage - 1) * state.itemsPerPage;
+      const end = start + state.itemsPerPage;
+      return state.filteredLogs.slice(start, end);
+    },
+
+    totalPages(state) {
+      return Math.ceil(state.filteredLogs.length / state.itemsPerPage);
+    },
+  },
 
   actions: {
     initializeSocket() {
@@ -105,10 +119,13 @@ export const useNetworkStore = defineStore("network", {
     },
 
     filterLogsByType(filter) {
+      this.currentPage = 1;
       if (filter === "high_severity") {
         this.filteredLogs = this.logs.filter((log) => log.severity === "high");
       } else if (filter === "medium_severity") {
-        this.filteredLogs = this.logs.filter((log) => log.severity === "medium");
+        this.filteredLogs = this.logs.filter(
+          (log) => log.severity === "medium"
+        );
       } else if (filter === "low_severity") {
         this.filteredLogs = this.logs.filter((log) => log.severity === "low");
       } else {
@@ -154,6 +171,12 @@ export const useNetworkStore = defineStore("network", {
       ]);
 
       return [headers, ...rows].map((row) => row.join(",")).join("\n");
+    },
+
+    setPage(page) {
+      if (page >= 1 && page <= this.totalPages) {
+        this.currentPage = page;
+      }
     },
   },
 });
