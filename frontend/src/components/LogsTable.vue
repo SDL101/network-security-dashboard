@@ -30,7 +30,7 @@
       </thead>
       <tbody>
         <tr
-          v-for="log in networkStore.paginatedLogs"
+          v-for="log in displayedLogs"
           :key="log.id"
           :class="[log.event_type.toLowerCase(), log.severity.toLowerCase()]"
         >
@@ -57,7 +57,7 @@
       </tbody>
     </table>
 
-    <div class="pagination">
+    <div class="pagination" v-if="!isScrollView">
       <button
         :disabled="networkStore.currentPage === 1"
         @click="networkStore.setPage(networkStore.currentPage - 1)"
@@ -79,17 +79,25 @@
         Next
       </button>
     </div>
+
+    <button v-else @click="scrollToTop" class="return-to-top">
+      Return to Top
+    </button>
   </div>
 </template>
 
 <script setup>
 import { useNetworkStore } from "../stores/networkStore";
 import { storeToRefs } from "pinia";
-import { onMounted } from "vue";
+import { onMounted, computed } from "vue";
 
 const networkStore = useNetworkStore();
 // Use storeToRefs for reactive state
-const { logs } = storeToRefs(networkStore);
+const { logs, paginatedLogs, isScrollView } = storeToRefs(networkStore);
+
+const displayedLogs = computed(() => {
+  return isScrollView.value ? logs.value : paginatedLogs.value;
+});
 
 onMounted(() => {
   // Initialize filteredLogs with all logs
@@ -97,20 +105,40 @@ onMounted(() => {
 });
 
 const formatTime = (timestamp) => {
-  return new Date(timestamp).toLocaleString();
+  const date = new Date(timestamp);
+  const options = {
+    year: "2-digit", // Testing abbr year to dec width
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false, // Use 24-hour time so I don't have to waste space with am/pm
+  };
+  return date.toLocaleString(undefined, options);
 };
 
 const formatEventType = (eventType) => {
+  console.log("Event Type:", eventType);
+
+  if (eventType === "external_connection") {
+    return "EXTERNAL CONN";
+  }
   return eventType
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 };
+
+const scrollToTop = () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
 </script>
 
 <style scoped>
 .logs-container {
-  margin-top: 20px;
+  width: 95%;
+  margin: 0 auto;
   overflow-x: auto;
 }
 
@@ -126,6 +154,7 @@ const formatEventType = (eventType) => {
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #eee;
+  white-space: nowrap;
 }
 
 .logs-table th {
@@ -221,11 +250,14 @@ tr.normal_traffic .event-type {
 }
 
 /* Hover effect */
-.logs-table tr:hover td {
-  background: rgba(255, 255, 255, 0.95) !important;
-  transform: scale(1.01);
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.logs-table tr {
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+}
+
+.logs-table tr:hover {
+  background-color: #e0e7ff; /* Background color */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Shadow */
+  border: 2px solid #3b82f6; /* Darker outline */
   cursor: pointer;
 }
 
@@ -354,5 +386,25 @@ tr.normal_traffic td {
 .pagination button:disabled {
   background-color: #eee;
   cursor: not-allowed;
+}
+
+.scroll-view {
+  max-height: 500px; /* Adjust as needed */
+  overflow-y: auto;
+}
+
+.log-entry {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.return-to-top {
+  display: block;
+  margin: 20px auto;
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
 }
 </style>

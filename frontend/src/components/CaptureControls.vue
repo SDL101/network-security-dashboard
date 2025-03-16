@@ -29,6 +29,12 @@
       <span class="icon">🗑️</span>
       <span class="btn-text">Clear Logs</span>
     </button>
+    <button @click="toggleView" class="control-btn">
+      <span class="icon">🔄</span>
+      <span class="btn-text">{{
+        isScrollView ? "Page View" : "Scroll View"
+      }}</span>
+    </button>
 
     <select
       id="eventType"
@@ -63,6 +69,7 @@ import { useNetworkStore } from "../stores/networkStore";
 
 const networkStore = useNetworkStore();
 const selectedEventType = ref("");
+const isScrollView = ref(false);
 
 console.log("CaptureControls mounted, networkStore:", {
   isCapturing: networkStore.isCapturing,
@@ -89,6 +96,11 @@ const filterLogs = () => {
 
 const exportLogs = () => {
   networkStore.exportLogs();
+};
+
+const toggleView = () => {
+  isScrollView.value = !isScrollView.value;
+  networkStore.setViewMode(isScrollView.value);
 };
 </script>
 

@@ -22,6 +22,7 @@ export const useNetworkStore = defineStore("network", {
       scan_status: "Normal",
       uptime_seconds: 0,
     },
+    isScrollView: false,
   }),
 
   getters: {
@@ -189,6 +190,10 @@ export const useNetworkStore = defineStore("network", {
       if (page >= 1 && page <= this.totalPages) {
         this.currentPage = page;
       }
+    },
+
+    setViewMode(isScroll) {
+      this.isScrollView = isScroll;
     },
   },
 });

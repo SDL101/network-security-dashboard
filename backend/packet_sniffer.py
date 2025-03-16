@@ -166,7 +166,7 @@ def detect_threat(packet):
             stats["threats_detected"] += 1
             log_entry.update({
                 "event_type": "network_scan",
-                "details": f"Port scanning detected - SYN packet to port {packet[TCP].dport}",
+                "details": f"Port scan - SYN packet to port {packet[TCP].dport}",
                 "severity": "high"
             })
         
@@ -185,7 +185,7 @@ def detect_threat(packet):
         elif not is_private_ip(log_entry["destination_ip"]):
             log_entry.update({
                 "event_type": "external_connection",
-                "details": f"External connection to {log_entry['destination_ip']}",
+                "details": f"External conn to {log_entry['destination_ip']}",
                 "severity": "medium"
             })
 
