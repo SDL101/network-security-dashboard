@@ -5,7 +5,8 @@
 
 A real-time network traffic analysis tool that provides instant visibility into network events, security threats, and connection patterns through an interactive web dashboard. Monitor your network traffic, detect potential security risks, and analyze connection patterns all in one place.
 
-![Dashboard Screenshot](https://via.placeholder.com/800x450.png?text=Network+Security+Dashboard)
+![image](https://github.com/user-attachments/assets/ec4b617d-1101-4c9f-a497-35f7b724b001)
+
 
 ## Features
 
