@@ -1,235 +1,204 @@
+
 # Network Security Monitoring Dashboard
 
-NOTE: This project is under development and some features I've listed below are not functional yet.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-A real-time network traffic analysis tool that gives you instant visibility into network events, security alerts, and connection details through an interactive web interface. This dashboard captures and analyzes network packets, detecting potential security threats and unusual network behavior.
+A real-time network traffic analysis tool that provides instant visibility into network events, security threats, and connection patterns through an interactive web dashboard. Monitor your network traffic, detect potential security risks, and analyze connection patterns all in one place.
 
-## Table of Contents
+![Dashboard Screenshot](https://via.placeholder.com/800x450.png?text=Network+Security+Dashboard)
 
-1. Overview
-2. Project Structure
-3. Key Features
-4. System Requirements
-5. Installation
-6. Running the Application
-7. Usage Guide
-8. Code Examples
-9. Troubleshooting
-10. Contributing
-11. License
-12. Support
+## Features
 
-## Overview
+- **Real-time Packet Capture**: Monitor network traffic as it happens
+- **Threat Detection**: Automatically identify potential security threats including:
+  - Port scanning attempts
+  - Suspicious large packets
+  - Unusual external connections
+- **Interactive Dashboard**: Filter, search, and analyze network events
+- **Data Persistence**: All logs are stored in SQLite database for historical analysis
+- **Export Capability**: Download logs as CSV for external analysis
 
-This project is designed to monitor network traffic in real time. It does the following:
-
-- **Captures network packets:** Constantly listens for network traffic.
-- **Analyzes traffic:** Detects potential security threats.
-- **Displays data interactively:** Uses a web interface to show real-time events, statistics, and alerts.
-
-## Project Structure
-
-A quick look at the folder layout shows how the project is organized:
+## Architecture
 
 ```
 network-security-dashboard/
-├── backend/
-│   ├── packet_sniffer.py     # Captures packets, analyzes data, and runs the WebSocket server
-│   ├── app.py                # Contains database models and REST API endpoints
-│   └── requirements.txt      # Lists all Python package dependencies
-├── frontend/
-│   ├── index.html            # The main HTML page for the dashboard
-│   ├── styles.css            # Styling rules for the dashboard
-│   ├── script.js             # Contains frontend logic and real-time update functions
-│   └── package.json          # Lists Node.js dependencies for frontend development
-└── README.md                 # This documentation file
+├── frontend/                 # Vue.js frontend application
+│   ├── src/                  # Source code
+│   │   ├── components/       # Vue components
+│   │   │   ├── LogsTable.vue     # Table displaying network logs
+│   │   │   ├── StatPanel.vue     # Network statistics panel
+│   │   │   ├── CaptureControls.vue # Capture control buttons
+│   │   │   ├── ConnectionStatus.vue # Backend connection status
+│   │   │   └── FilterPanel.vue   # Log filtering controls
+│   │   ├── stores/           # Pinia state management
+│   │   │   └── networkStore.js  # Network state management
+│   │   ├── assets/           # Static assets
+│   │   │   └── styles.css    # Global styles
+│   │   ├── App.vue           # Main application component
+│   │   └── main.js           # Application entry point 
+│   ├── index.html            # HTML entry point
+│   ├── package.json          # Node dependencies
+│   └── vite.config.js        # Build configuration
+├── backend/                  # Flask-based Python backend
+│   ├── packet_sniffer.py     # Core packet capture engine
+│   ├── database.py           # Database models
+│   ├── app.py                # Flask app configuration
+│   ├── routes.py             # API endpoints
+│   ├── instance/             # Database storage location
+│   │   └── network_logs.db   # SQLite database (created on first run)
+│   └── requirements.txt      # Python dependencies
+├── .gitignore                # Git ignore configuration
+└── README.md                 # This file
 ```
 
-## Key Features
+## Requirements
 
-- **Real-time monitoring:** Get live updates on network traffic.
-- **Automatic threat detection:** Alerts you when unusual activity is detected.
-- **Interactive filtering and search:** Easily find the information you need.
-- **Data export:** Save logs as CSV files for further analysis.
-- **Visual statistics:** Graphical representation of network events.
-- **Color-coded alerts:** Quickly distinguish between types of network events.
-
-## System Requirements
-
-### Operating Systems
-
-- Windows 10+
-- macOS 10.15+
-- Linux
-
-### Hardware
-
-- **RAM:** Minimum 4GB
-- **Storage:** At least 1GB free space
-
-### Software Dependencies
-
-1. **Python 3.8+**
-   - [Download Python](https://www.python.org/downloads/)
-   - **Purpose:** Runs the backend packet capture and analysis.
-2. **Node.js (LTS)**
-   - [Download Node.js](https://nodejs.org/)
-   - **Purpose:** Runs the frontend development server.
-   - **Note:** Minimum version 14.x.
-3. **Git**
-   - [Download Git](https://git-scm.com/)
-   - **Purpose:** For version control and downloading the project repository.
+- **Python 3.8+** - For backend packet capture and analysis
+- **Node.js 14+** - For frontend development and build
+- **Administrator/Root privileges** - Required for packet sniffing
 
 ## Installation
 
-### Step 1: Clone the Repository
+### 1. Clone the Repository
 
-Open your terminal and run:
-
-```sh
-git clone https://github.com/SDL101/network-security-dashboard.git
+```bash
+git clone https://github.com/yourname/network-security-dashboard.git
 cd network-security-dashboard
 ```
 
-**Why this step?**  
-This downloads the project to your local machine so you can start working with it.
+### 2. Set Up the Backend
 
-### Step 2: Setup the Backend
-
-Create and activate a virtual environment, then install dependencies:
-
-```sh
-# Create virtual environment
+```bash
+# Create a virtual environment
 python -m venv venv
 
-# Activate virtual environment
-# For Windows:
+# Activate the virtual environment
+# On Windows:
 venv\Scripts\activate
-# For macOS/Linux:
+# On macOS/Linux:
 source venv/bin/activate
 
-# Install required Python packages
+# Install dependencies
 pip install -r backend/requirements.txt
 ```
 
-**Why this step?**  
-Isolating dependencies in a virtual environment avoids conflicts with other projects.
+### 3. Set Up the Frontend
 
-### Step 3: Setup the Frontend
-
-Navigate to the frontend directory and install Node.js packages:
-
-```sh
+```bash
 cd frontend
 npm install
 ```
 
-**Why this step?**  
-This installs all required packages to run the frontend development server.
-
 ## Running the Application
 
-### 1. Start the Backend Server
+The application has two components that need to be run separately:
 
-Make sure your virtual environment is active, then run:
+### 1. Start the Backend (Packet Capture Engine)
 
-```sh
+```bash
+# From the project root, with virtual environment activated
+# On Windows (with admin privileges):
+python backend/packet_sniffer.py
+
+# On macOS/Linux:
 sudo python backend/packet_sniffer.py
 ```
 
-**Why this step?**  
-This gives admin rights and starts the packet capture and analysis engine that monitors network traffic.
+The backend will start on http://localhost:5000
 
 ### 2. Start the Frontend Development Server
 
-In a new terminal, start the frontend:
-
-```sh
+```bash
+# In a new terminal
 cd frontend
 npm run dev
 ```
 
-**Why this step?**  
-This serves the interactive dashboard on your browser.
-
-**Access the Dashboard:**  
-You should automatically be brought here when you run 'npm start', but if not open your browser and go to `http://localhost:8000`.
+The frontend will be available at http://localhost:8000 (or the URL displayed in your terminal)
 
 ## Usage Guide
 
-### Basic Operations
+### Capturing Network Traffic
 
-1. **Start Monitoring:**
-   - Click the “Start Capture” button on the dashboard.
-   - **Note:** You may need administrator privileges.
-   - The dashboard will begin displaying real-time network statistics.
-2. **View and Filter Events:**
-   - Use dropdown menus and stat boxes to filter events by type.
-   - Search using parameters like IP address, time range, or severity level.
-3. **Export Data:**
-   - Click “Export Logs as CSV” to save the current view.
-   - Files are saved with a timestamp for easy identification.
+1. Open the dashboard in your browser
+2. Click the "Start Capture" button to begin monitoring
+3. Network events will appear in real-time in the logs table
+4. Click "Stop Capture" to pause monitoring
 
-## Code Examples
+### Analyzing Events
 
-### Event Detection Logic (Backend)
+- Use the dropdown filters to view specific event types:
+  - High Severity - Critical security events
+  - Medium Severity - Potential concerns
+  - Low Severity - Normal traffic
+  - Port Scans - Potential reconnaissance activity
+  - External Connections - Traffic to non-private IPs
+  - Normal Traffic - Regular network activity
 
-Located in `backend/packet_sniffer.py`, this snippet shows how network packets are captured and processed:
+- Events are color-coded by type:
+  - Red: Network scans (potential security threats)
+  - Yellow: Large packets (unusual traffic)
+  - Blue: External connections
+  - Green: Normal traffic
 
-```python
-def start_sniffing():
-    print("🛡️  Network monitoring ready...")
-    try:
-        sniff(filter="ip", prn=detect_threat, store=False)
-    except Exception as e:
-        print(f"Error in packet sniffing: {e}")
+### Exporting Data
 
-def signal_handler(sig, frame):
-    print("Shutting down...")
-    global is_capturing
-    is_capturing = False
-    sys.exit(0)
-```
+1. Click the "Download Logs as CSV" button
+2. The current filtered view will be exported as a CSV file with a timestamp
 
-### Real-time Updates (Frontend)
+## API Endpoints
 
-Located in `frontend/script.js`, this snippet shows how new log messages are handled:
+The backend provides several REST endpoints:
 
-```javascript
-activeSocket.on("new_log", function (data) {
-  if (!isCapturing || !data) return;
-  if (isCapturePaused) {
-    queuedLogs.push(data.log);
-  } else {
-    if (data.log) addLogEntry(data.log);
-    if (data.stats) updateStats(data.stats);
-  }
-});
-```
+- `GET /get_logs` - Retrieve logs with optional filtering by date range and event type
+- `POST /clear_logs` - Clear all stored logs
+- Socket.IO events for real-time updates:
+  - `connect` - Client connection event
+  - `start_capture` - Start packet capture
+  - `stop_capture` - Stop packet capture
+  - `new_log` - Emitted when new network events are detected
 
 ## Troubleshooting
 
-### Common Issues and How to Solve Them
+### Common Issues
 
-1. **Permission Errors:**
-   - **Windows:** Run the terminal as Administrator.
-   - **Linux/macOS:** Use `sudo python backend/packet_sniffer.py` if needed.
-2. **Port Conflicts:**
-   - Backend (port 5000): Check with `netstat -ano | findstr 5000`
-   - Frontend (port 8000): Check with `netstat -ano | findstr 8000`
-3. **Connection Issues:**
-   - Verify that the backend is running (look for the 🛡️ indicator).
-   - Check the browser console for errors.
-   - Ensure firewall settings allow the connections.
+1. **Permission Denied**
+   - Ensure you're running the backend with administrator privileges
+   - On Linux/macOS, use `sudo python backend/packet_sniffer.py`
+   - On Windows, run the command prompt as Administrator
+
+2. **Port Conflicts**
+   - If ports 5000 or 8000 are in use, check for other applications
+   - For port 5000: `netstat -ano | findstr 5000` (Windows) or `lsof -i :5000` (Linux/macOS)
+   - For port 8000: `netstat -ano | findstr 8000` (Windows) or `lsof -i :8000` (Linux/macOS)
+
+3. **No Events Showing**
+   - Verify the backend is running (check for "🛡️ Network monitoring ready" message)
+   - Check browser console for WebSocket connection errors
+   - Ensure you've clicked "Start Capture" on the dashboard
+
+4. **Database Issues**
+   - The SQLite database is stored in `backend/instance/network_logs.db`
+   - If corrupted, it can be safely deleted (a new one will be created)
 
 ## Contributing
 
-If you’d like to contribute, please read our **Contributing Guidelines** and **Code of Conduct** before submitting a pull request.
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-This project is licensed under the **MIT License**. See the `LICENSE` file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Support
+## Acknowledgments
 
-For any issues or questions, please refer to our support channels or open an issue on GitHub.
+- [Scapy](https://scapy.net/) for network packet manipulation
+- [Flask](https://flask.palletsprojects.com/) for the backend web framework
+- [Vue.js](https://vuejs.org/) for the frontend framework
+- [Socket.IO](https://socket.io/) for real-time communication
+- [SQLAlchemy](https://www.sqlalchemy.org/) for database ORM
