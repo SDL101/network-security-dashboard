@@ -23,33 +23,33 @@ A real-time network traffic analysis tool that provides instant visibility into 
 
 ```
 network-security-dashboard/
-├── frontend/                 # Vue.js frontend application
-│   ├── src/                  # Source code
-│   │   ├── components/       # Vue components
-│   │   │   ├── LogsTable.vue     # Table displaying network logs
-│   │   │   ├── StatPanel.vue     # Network statistics panel
-│   │   │   ├── CaptureControls.vue # Capture control buttons
-│   │   │   ├── ConnectionStatus.vue # Backend connection status
-│   │   │   └── FilterPanel.vue   # Log filtering controls
-│   │   ├── stores/           # Pinia state management
-│   │   │   └── networkStore.js  # Network state management
-│   │   ├── assets/           # Static assets
-│   │   │   └── styles.css    # Global styles
-│   │   ├── App.vue           # Main application component
-│   │   └── main.js           # Application entry point 
-│   ├── index.html            # HTML entry point
-│   ├── package.json          # Node dependencies
-│   └── vite.config.js        # Build configuration
-├── backend/                  # Flask-based Python backend
-│   ├── packet_sniffer.py     # Core packet capture engine
-│   ├── database.py           # Database models
-│   ├── app.py                # Flask app configuration
-│   ├── routes.py             # API endpoints
-│   ├── instance/             # Database storage location
-│   │   └── network_logs.db   # SQLite database (created on first run)
-│   └── requirements.txt      # Python dependencies
-├── .gitignore                # Git ignore configuration
-└── README.md                 # This file
+├── README.md                    # Project documentation
+├── backend/                     # Python backend
+│   ├── app.py                   # Flask application
+│   ├── database.py              # Database models
+│   ├── instance/                # Flask instance folder
+│   │   └── network_logs.db      # SQLite database
+│   ├── packet_sniffer.py        # Packet capture engine
+│   ├── requirements.txt         # Python dependencies
+│   └── routes.py                # API endpoints
+└── frontend/                    # Vue.js frontend
+    ├── index.html               # HTML entry point
+    ├── package-lock.json        # NPM lock file
+    ├── package.json             # NPM configuration
+    ├── src/                     # Source code directory
+    │   ├── App.vue              # Root Vue component
+    │   ├── assets/              # Static assets
+    │   │   └── styles.css       # Global styles
+    │   ├── components/          # Vue components
+    │   │   ├── CaptureControls.vue  # Control buttons
+    │   │   ├── ConnectionStatus.vue # Connection indicator
+    │   │   ├── FilterPanel.vue      # Log filtering
+    │   │   ├── LogsTable.vue        # Network logs display
+    │   │   └── StatPanel.vue        # Network statistics
+    │   ├── main.js              # JavaScript entry point
+    │   └── stores/              # Pinia state management
+    │       └── networkStore.js  # Network state
+    └── vite.config.js           # Vite configuration
 ```
 
 ## Requirements
