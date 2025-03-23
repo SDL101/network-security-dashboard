@@ -146,7 +146,7 @@ In a new terminal, start the frontend:
 
 ```sh
 cd frontend
-npm start
+npm run dev
 ```
 
 **Why this step?**  
