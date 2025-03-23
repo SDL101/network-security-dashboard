@@ -4,8 +4,8 @@ from flask_sqlalchemy import SQLAlchemy  # Import SQLAlchemy
 # === DB Setup: Initialize the database instance ===
 db = SQLAlchemy()  # Init DB
 
-# === Model Definition: Define LogEntry model for logs table ===
-class LogEntry(db.Model):
+# === Model Definition: Define NetworkLog model for logs table ===
+class NetworkLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)  # Unique ID
     timestamp = db.Column(db.String(100), nullable=False)  # When log happened
     source_ip = db.Column(db.String(100), nullable=False)  # Orig IP

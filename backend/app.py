@@ -1,7 +1,7 @@
 # === Imports: Load required modules ===
 from flask import Flask, request, jsonify  # Flask for web app & HTTP handling
-from flask_sqlalchemy import SQLAlchemy  # ORM for DB interactions
 from flask_cors import CORS  # Enable cross-origin requests
+from database import db, NetworkLog  # Import db and model from database.py
 
 # === App Setup: Initialize Flask app and enable CORS ===
 app = Flask(__name__)  # Create Flask app instance
@@ -12,16 +12,11 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///network_logs.db'  # Use SQLit
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Disable modification tracking
 
 # === DB Initialization: Set up SQLAlchemy with the app ===
-db = SQLAlchemy(app)
+db.init_app(app)  # Initialize db with the app
 
-# === Model Definition: Define NetworkLog table structure ===
-class NetworkLog(db.Model):
-    id = db.Column(db.Integer, primary_key=True)  # Unique ID for each log entry
-    timestamp = db.Column(db.String, nullable=False)  # When the event occurred
-    source_ip = db.Column(db.String, nullable=False)  # Source IP address
-    destination_ip = db.Column(db.String, nullable=False)  # Destination IP address
-    event_type = db.Column(db.String, nullable=False)  # Type of event
-    details = db.Column(db.String, nullable=False)  # Extra event details
+# Create tables if they don't exist
+with app.app_context():
+    db.create_all()
 
 # === API Endpoint: Define route to fetch logs based on query parameters ===
 @app.route('/get_logs', methods=['GET'])
@@ -53,6 +48,4 @@ def get_logs():
 
 # === Main: Create DB tables if needed and run the Flask server ===
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()  # Create tables if they don't exist
     app.run(host='0.0.0.0', port=5000, debug=True)  # Start server with debug mode

@@ -1,7 +1,7 @@
 # === Imports: ===
 from flask import request, jsonify  # For handling HTTP requests and JSON responses
 from flask_restful import Resource, Api  # Provides a simple way to create RESTful APIs
-from database import db, LogEntry  # Import the database instance and the LogEntry model
+from database import db, NetworkLog  # Import the database instance and the NetworkLog model
 
 # === API Setup: Initialize the RESTful API instance ===
 api = Api()  # Create an API instance to register resource endpoints
@@ -15,8 +15,8 @@ class LogAPI(Resource):
         if not data:
             return {"error": "Invalid data"}, 400
         
-        # Create a new LogEntry object using the received data
-        log = LogEntry(
+        # Create a new NetworkLog object using the received data
+        log = NetworkLog(
             timestamp=data['timestamp'],
             source_ip=data['source_ip'],
             destination_ip=data['destination_ip'],
@@ -33,8 +33,8 @@ class LogAPI(Resource):
 # === Resource: GetLogsAPI for retrieving all log entries ===
 class GetLogsAPI(Resource):
     def get(self):
-        # Query all log entries from the LogEntry model/table
-        logs = LogEntry.query.all()
+        # Query all log entries from the NetworkLog model/table
+        logs = NetworkLog.query.all()
         # Return a JSON array of log entries, converting each log to a dictionary
         return jsonify([
             {

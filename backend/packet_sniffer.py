@@ -9,6 +9,8 @@ import time  # Provides time-related functions for tracking uptime and timestamp
 import threading  # To enable multi-threaded operations
 import signal  # Handle OS-level signals for graceful shutdown
 import sys  # System-specific parameters and functions
+from database import db, NetworkLog
+from flask_sqlalchemy import SQLAlchemy  
 
 # === App Setup: Initialize Flask app, enable CORS, and configure SocketIO ===
 app = Flask(__name__)  # Create the Flask application instance
@@ -200,6 +202,18 @@ def detect_threat(packet):
             "log": log_entry,
             "stats": format_stats()
         })
+
+        # Add this to save logs to database (around line 198)
+        with app.app_context():
+            network_log = NetworkLog(
+                timestamp=log_entry["timestamp"],
+                source_ip=log_entry["source_ip"],
+                destination_ip=log_entry["destination_ip"],
+                event_type=log_entry["event_type"],
+                details=log_entry["details"]
+            )
+            db.session.add(network_log)
+            db.session.commit()
 
     except Exception as e:
         # Log any exceptions encountered during threat detection
