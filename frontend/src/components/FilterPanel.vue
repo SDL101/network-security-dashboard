@@ -88,7 +88,6 @@ const protocols = [
   //{ value: 'SMTP', label: 'SMTP' },
   { value: 'DNS', label: 'DNS' },
   //{ value: 'RDP', label: 'RDP' },
-  { value: 'UDP', label: 'UDP' }
 ];
 
 const selectedEventTypes = ref([]);
@@ -139,7 +138,14 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
-  padding: 5px 0;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.filter-header:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .filter-header h3 {
@@ -147,12 +153,27 @@ onMounted(() => {
   color: var(--text);
   font-size: 1.1rem;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .toggle-icon {
   transition: transform 0.3s ease;
-  font-size: 0.8rem;
-  color: var(--text-secondary);
+  font-size: 1.2rem;
+  color: var(--primary);
+  background: rgba(54, 153, 255, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+}
+
+.toggle-icon:hover {
+  background: rgba(54, 153, 255, 0.2);
 }
 
 .toggle-icon.expanded {

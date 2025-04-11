@@ -6,7 +6,7 @@
           <ThemeToggle />
         </div>
         <div class="header-center">
-          <h1>Network Security Dashboard</h1>
+          <h1 class="main-title">Network Security Dashboard</h1>
         </div>
         <div class="header-right">
           <div class="developer-info">
@@ -53,6 +53,29 @@ onMounted(() => {
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+
+.main-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0;
+  background: linear-gradient(135deg, #4a90e2, #2c3e50);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.5px;
+  position: relative;
+  text-transform: uppercase;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.main-title::after {
+  display: none;
+}
+
 .dashboard {
   padding: 20px;
   max-width: 1200px;
@@ -68,24 +91,30 @@ header {
 .header-container {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   width: 100%;
   margin-bottom: 20px;
+  gap: 10px;
 }
 
 .header-left {
-  flex: 1;
+  flex: 0 0 auto;
 }
 
 .header-center {
-  flex: 2;
+  flex: 1;
   text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 0;
 }
 
 .header-right {
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   justify-content: flex-end;
+  margin-right: 40px;
 }
 
 .developer-info {
@@ -96,12 +125,12 @@ header {
   font-size: 0.9rem;
   color: var(--text-secondary);
   white-space: nowrap;
+  margin-right: 0;
 }
 
 .developer-text {
   text-align: right;
   white-space: nowrap;
-  margin-right: 20px;
 }
 
 .github-link {
@@ -115,7 +144,6 @@ header {
   border-radius: 4px;
   background: #24292e;
   font-weight: 500;
-  margin-right: 20px;
 }
 
 .github-link:hover {

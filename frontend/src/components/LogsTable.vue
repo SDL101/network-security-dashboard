@@ -93,10 +93,10 @@ import { onMounted, computed } from "vue";
 
 const networkStore = useNetworkStore();
 // Use storeToRefs for reactive state
-const { logs, paginatedLogs, isScrollView } = storeToRefs(networkStore);
+const { logs, paginatedLogs, isScrollView, filteredLogs } = storeToRefs(networkStore);
 
 const displayedLogs = computed(() => {
-  return isScrollView.value ? logs.value : paginatedLogs.value;
+  return isScrollView.value ? filteredLogs.value : paginatedLogs.value;
 });
 
 onMounted(() => {
@@ -377,15 +377,25 @@ tr.normal_traffic td {
 
 .pagination button {
   padding: 0.5rem 1rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
   border-radius: 4px;
-  background-color: white;
+  background-color: var(--surface);
+  color: var(--text);
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination button:hover {
+  background-color: var(--primary);
+  color: var(--background);
+  border-color: var(--primary);
 }
 
 .pagination button:disabled {
-  background-color: #eee;
+  background-color: var(--surface);
+  color: var(--text-secondary);
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .scroll-view {
@@ -402,9 +412,17 @@ tr.normal_traffic td {
   display: block;
   margin: 20px auto;
   padding: 0.5rem 1rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
   border-radius: 4px;
-  background-color: white;
+  background-color: var(--surface);
+  color: var(--text);
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.return-to-top:hover {
+  background-color: var(--primary);
+  color: var(--background);
+  border-color: var(--primary);
 }
 </style>
