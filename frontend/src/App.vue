@@ -2,23 +2,33 @@
   <div class="dashboard">
     <header>
       <div class="header-container">
-        <h1>Network Security Dashboard</h1>
-        <div class="developer-info">
-          <span>Developed by Scott Lindsay</span>
-          <a
-            href="https://github.com/SDL101/network-security-dashboard"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="github-link"
-          >
-            📂 View on GitHub
-          </a>
+        <div class="header-left">
+          <ThemeToggle />
+        </div>
+        <div class="header-center">
+          <h1>Network Security Dashboard</h1>
+        </div>
+        <div class="header-right">
+          <div class="developer-info">
+            <div class="developer-text">
+              <span>Developed by Scott Lindsay</span>
+            </div>
+            <a
+              href="https://github.com/SDL101/network-security-dashboard"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="github-link"
+            >
+              📂 View on GitHub
+            </a>
+          </div>
         </div>
       </div>
       <ConnectionStatus />
     </header>
 
     <StatPanel />
+    <FilterPanel />
     <CaptureControls />
     <LogsTable />
   </div>
@@ -29,6 +39,8 @@ import StatPanel from "./components/StatPanel.vue";
 import CaptureControls from "./components/CaptureControls.vue";
 import LogsTable from "./components/LogsTable.vue";
 import ConnectionStatus from "./components/ConnectionStatus.vue";
+import FilterPanel from "./components/FilterPanel.vue";
+import ThemeToggle from "./components/ThemeToggle.vue";
 import { useNetworkStore } from "./stores/networkStore";
 import { onMounted } from "vue";
 import "./assets/styles.css";
@@ -49,23 +61,47 @@ onMounted(() => {
 
 header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   margin-bottom: 20px;
 }
 
 .header-container {
   display: flex;
-  align-items: center;
-  gap: 24px;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.header-center {
+  flex: 2;
+  text-align: center;
+}
+
+.header-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .developer-info {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.developer-text {
+  text-align: right;
+  white-space: nowrap;
+  margin-right: 20px;
 }
 
 .github-link {
@@ -79,6 +115,7 @@ header {
   border-radius: 4px;
   background: #24292e;
   font-weight: 500;
+  margin-right: 20px;
 }
 
 .github-link:hover {
@@ -92,6 +129,6 @@ header {
 
 h1 {
   margin: 0;
-  color: #333;
+  color: var(--text);
 }
 </style>

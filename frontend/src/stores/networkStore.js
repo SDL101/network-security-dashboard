@@ -15,6 +15,11 @@ export const useNetworkStore = defineStore("network", {
     logs: [],
     filteredLogs: [],
     connectionStatus: "disconnected",
+    activeFilters: {
+      eventTypes: [],
+      severities: [],
+      protocols: []
+    },
     stats: {
       packets_analyzed: 0,
       threats_detected: 0,
@@ -35,6 +40,10 @@ export const useNetworkStore = defineStore("network", {
     totalPages(state) {
       return Math.ceil(state.filteredLogs.length / state.itemsPerPage);
     },
+
+    getCurrentFilters(state) {
+      return state.activeFilters;
+    }
   },
 
   actions: {
@@ -99,6 +108,47 @@ export const useNetworkStore = defineStore("network", {
       });
     },
 
+    updateFilters(filters) {
+      this.activeFilters = filters;
+      this.applyFilters();
+    },
+
+    clearFilters() {
+      this.activeFilters = {
+        eventTypes: [],
+        severities: [],
+        protocols: []
+      };
+      this.filteredLogs = [...this.logs];
+      this.currentPage = 1;
+    },
+
+    applyFilters() {
+      this.currentPage = 1;
+      
+      this.filteredLogs = this.logs.filter(log => {
+        // Check event type filter
+        if (this.activeFilters.eventTypes.length > 0 && 
+            !this.activeFilters.eventTypes.includes(log.event_type)) {
+          return false;
+        }
+
+        // Check severity filter
+        if (this.activeFilters.severities.length > 0 && 
+            !this.activeFilters.severities.includes(log.severity)) {
+          return false;
+        }
+
+        // Check protocol filter
+        if (this.activeFilters.protocols.length > 0 && 
+            !this.activeFilters.protocols.includes(log.protocol)) {
+          return false;
+        }
+
+        return true;
+      });
+    },
+
     addLogEntry(log) {
       const enhancedLog = {
         ...log,
@@ -107,7 +157,7 @@ export const useNetworkStore = defineStore("network", {
       };
 
       this.logs.unshift(enhancedLog);
-      this.filterLogsByType(this.selectedEventType || "");
+      this.applyFilters();
       this.totalEvents++;
 
       if (log.severity === "high") {
