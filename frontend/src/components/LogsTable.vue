@@ -6,7 +6,9 @@
       <div
         style="background: #f5f5f5; padding: 10px; margin: 10px 0; color: #888"
       >
-        Total logs: {{ networkStore.filteredLogs.length }}
+        Total Network Events: {{ networkStore.totalEvents }}
+        <br />
+        Filtered Logs Count: {{ networkStore.filteredLogs.length }}
         <br />
         Current page: {{ networkStore.currentPage }}
         <br />
