@@ -3,8 +3,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 A real-time network traffic analysis tool that provides instant visibility into network events, security threats, and connection patterns through an interactive web dashboard. Monitor your network traffic, detect potential security risks, and analyze connection patterns all in one place.
+![Screenshot 2025-04-12 at 4 44 17 PM](https://github.com/user-attachments/assets/23301a0f-b56d-4175-954e-0ec7fc8c0fc6)
 
-![image](https://github.com/user-attachments/assets/ec4b617d-1101-4c9f-a497-35f7b724b001)
+![Screenshot 2025-04-12 at 5 13 54 PM](https://github.com/user-attachments/assets/92c742e6-4531-43f0-be73-599aafc25c4a)
+
 
 
 ## Features
@@ -24,13 +26,9 @@ A real-time network traffic analysis tool that provides instant visibility into 
 network-security-dashboard/
 ├── README.md                    # Project documentation and setup instructions
 ├── backend                      # Backend server and network monitoring code folder/directory
-│   ├── app.py                  # Flask application initialization and configuration
 │   ├── database.py             # Database models and SQLAlchemy setup
-│   ├── instance                # Database instance directory
-│   │   └── network_logs.db     # SQLite database file storing network logs
 │   ├── packet_sniffer.py       # Core network packet capture and analysis logic
 │   ├── requirements.txt        # Python dependencies for backend
-│   └── routes.py               # API endpoints and route handlers
 └── frontend                     # Vue.js frontend application
     ├── index.html              # Main HTML entry point
     ├── package-lock.json       # NPM dependency lock file
