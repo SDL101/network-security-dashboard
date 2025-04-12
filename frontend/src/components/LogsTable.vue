@@ -222,50 +222,8 @@ tr.normal_traffic .event-type {
   color: white;
 }
 
-/* Severity Badges */
-.severity-badge {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: white;
-}
-
-.severity-badge.high {
-  background: #d63031;
-}
-
-.severity-badge.medium {
-  background: #e17055;
-}
-
-.severity-badge.low {
-  background: #0984e3;
-}
-
-/* Event Type Labels */
-.event-type {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-/* Hover effect */
-.logs-table tr {
-  transition: background-color 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
-}
-
-.logs-table tr:hover {
-  background-color: #e0e7ff; /* Background color */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Shadow */
-  border: 2px solid #3b82f6; /* Darker outline */
-  cursor: pointer;
-}
-
 /* Override the dark default background from styles.css */
 .logs-table td {
-  background: #aeddae; /* Changed to light green */
   color: #2d3436; /* Keep dark text for contrast */
 }
 
@@ -284,6 +242,82 @@ tr.external_connection td {
 
 tr.normal_traffic td {
   background: rgba(135, 196, 144, 0.5);
+}
+
+/* Severity Badges */
+.severity-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white !important;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  display: inline-block;
+  min-width: 60px;
+  text-align: center;
+}
+
+.severity-badge.high {
+  background: #d63031;
+}
+
+.severity-badge.medium {
+  background: #e17055;
+}
+
+.severity-badge.low {
+  background: #0984e3;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .logs-table td {
+    color: #f8f9fa;
+  }
+  
+  .severity-badge {
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+  }
+  
+  .severity-badge.high {
+    background: #ff4757;
+  }
+  
+  .severity-badge.medium {
+    background: #ffa502;
+  }
+  
+  .severity-badge.low {
+    background: #00d2d3;
+  }
+}
+
+/* Event Type Labels */
+.event-type {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Hover effect */
+.logs-table tr {
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.logs-table tr:hover {
+  box-shadow: 0 0 0 2px #3b82f6; /* Blue outline */
+  cursor: pointer;
+  z-index: 1;
+  transform: scale(1.01); /* Slight scale effect */
+}
+
+/* Dark mode hover adjustments */
+@media (prefers-color-scheme: dark) {
+  .logs-table tr:hover {
+    box-shadow: 0 0 0 2px #60a5fa; /* Lighter blue outline for dark mode */
+  }
 }
 
 .protocol-badge {
