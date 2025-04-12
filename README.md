@@ -3,10 +3,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 A real-time network traffic analysis tool that provides instant visibility into network events, security threats, and connection patterns through an interactive web dashboard. Monitor your network traffic, detect potential security risks, and analyze connection patterns all in one place.
-![Screenshot 2025-04-12 at 4 44 17 PM](https://github.com/user-attachments/assets/23301a0f-b56d-4175-954e-0ec7fc8c0fc6)
-
-![Screenshot 2025-04-12 at 5 13 54 PM](https://github.com/user-attachments/assets/92c742e6-4531-43f0-be73-599aafc25c4a)
-
+<div style="display: flex; justify-content: space-between; margin: 20px 0;">
+  <img src="https://github.com/user-attachments/assets/23301a0f-b56d-4175-954e-0ec7fc8c0fc6" style="width:45%;">
+  <img src="https://github.com/user-attachments/assets/92c742e6-4531-43f0-be73-599aafc25c4a" style="width:45%;">
+</div>
 
 
 ## Features
