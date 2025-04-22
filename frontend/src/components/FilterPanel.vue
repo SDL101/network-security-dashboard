@@ -1,7 +1,19 @@
 <template>
   <div class="filter-panel">
     <div class="filter-header" @click="toggleFilters">
-      <h3>Filters</h3>
+      <div class="header-content">
+        <h3>Filters</h3>
+        <div class="active-filters">
+          <span v-if="!hasActiveFilters">No filters active</span>
+          <template v-else>
+            <span v-for="(filters, category) in activeFilters" :key="category" class="filter-category">
+              <span v-for="filter in filters" :key="filter" class="active-filter">
+                {{ filter }}
+              </span>
+            </span>
+          </template>
+        </div>
+      </div>
       <span class="toggle-icon" :class="{ 'expanded': isExpanded }">
         ▼
       </span>
@@ -61,7 +73,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useNetworkStore } from '../stores/networkStore';
 
 const networkStore = useNetworkStore();
@@ -93,6 +105,36 @@ const protocols = [
 const selectedEventTypes = ref([]);
 const selectedSeverities = ref([]);
 const selectedProtocols = ref([]);
+
+const hasActiveFilters = computed(() => {
+  return selectedEventTypes.value.length > 0 || 
+         selectedSeverities.value.length > 0 || 
+         selectedProtocols.value.length > 0;
+});
+
+const activeFilters = computed(() => {
+  const filters = {};
+  
+  if (selectedEventTypes.value.length > 0) {
+    filters['Event Types'] = selectedEventTypes.value.map(type => 
+      eventTypes.find(t => t.value === type)?.label || type
+    );
+  }
+  
+  if (selectedSeverities.value.length > 0) {
+    filters['Severity'] = selectedSeverities.value.map(severity => 
+      severities.find(s => s.value === severity)?.label || severity
+    );
+  }
+  
+  if (selectedProtocols.value.length > 0) {
+    filters['Protocol'] = selectedProtocols.value.map(protocol => 
+      protocols.find(p => p.value === protocol)?.label || protocol
+    );
+  }
+  
+  return filters;
+});
 
 const updateFilters = () => {
   networkStore.updateFilters({
@@ -249,5 +291,34 @@ onMounted(() => {
 .clear-btn:hover {
   background: rgba(255, 255, 255, 0.15);
   border-color: var(--primary);
+}
+
+.header-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.filter-category {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.active-filter {
+  background: rgba(54, 153, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--primary);
+  font-size: 0.8rem;
 }
 </style>
