@@ -27,7 +27,7 @@ A real-time network traffic analysis tool that provides instant visibility into 
 
 ```
 network-security-dashboard/
-├── README.md                   # (you're reading it now) Project documentation + setup instructions
+├── README.md                   # Project documentation + setup instructions
 ├── LICENSE                     # MIT License file (use this repo however you'd like)
 ├── .gitignore                  # Git ignore rules
 ├── backend                     # Backend server and network monitoring code folder/directory
