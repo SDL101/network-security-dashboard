@@ -9,7 +9,7 @@
 ## 📊 Project Metrics
 
 ### Code Statistics
-![Lines of code](https://img.shields.io/tokei/lines/github/SDL101/network-security-dashboard)
+![Lines of code](https://img.shields.io/github/search/SDL101/network-security-dashboard/lines)
 ![Files](https://img.shields.io/github/directory-file-count/SDL101/network-security-dashboard)
 ![Repo Size](https://img.shields.io/github/repo-size/SDL101/network-security-dashboard)
 
