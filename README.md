@@ -2,6 +2,16 @@
 
 [![Development Status](https://img.shields.io/badge/status-under%20development-yellow)](https://github.com/SDL101/network-security-dashboard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/SDL101/network-security-dashboard/ci.yml?branch=main)](https://github.com/SDL101/network-security-dashboard/actions)
+[![Code Coverage](https://img.shields.io/codecov/c/github/SDL101/network-security-dashboard)](https://codecov.io/gh/SDL101/network-security-dashboard)
+[![Dependencies](https://img.shields.io/david/SDL101/network-security-dashboard)](https://david-dm.org/SDL101/network-security-dashboard)
+[![Code Quality](https://img.shields.io/codacy/grade/abcdef1234567890)](https://app.codacy.com/gh/SDL101/network-security-dashboard)
+[![Last Commit](https://img.shields.io/github/last-commit/SDL101/network-security-dashboard)](https://github.com/SDL101/network-security-dashboard/commits/main)
+[![Open Issues](https://img.shields.io/github/issues/SDL101/network-security-dashboard)](https://github.com/SDL101/network-security-dashboard/issues)
+[![Pull Requests](https://img.shields.io/github/issues-pr/SDL101/network-security-dashboard)](https://github.com/SDL101/network-security-dashboard/pulls)
+[![Contributors](https://img.shields.io/github/contributors/SDL101/network-security-dashboard)](https://github.com/SDL101/network-security-dashboard/graphs/contributors)
+[![Release](https://img.shields.io/github/v/release/SDL101/network-security-dashboard)](https://github.com/SDL101/network-security-dashboard/releases)
+[![Downloads](https://img.shields.io/npm/dt/network-security-dashboard)](https://www.npmjs.com/package/network-security-dashboard)
 
 A real-time network traffic analysis tool that provides instant visibility into network events, security threats, and connection patterns through an interactive web dashboard. Monitor your network traffic, detect potential security risks, and analyze connection patterns all in one place.
 <div style="display: flex; justify-content: space-between; margin: 20px 0;">
