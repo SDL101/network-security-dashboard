@@ -28,6 +28,7 @@ A real-time network traffic analysis tool that provides instant visibility into 
 ```
 network-security-dashboard/
 ├── README.md                   # (The current file you are reading now) Project documentation and setup instructions
+├── LICENSE                     # MIT License file (one of the most permissive open-source licenses - use repo however you'd like)
 ├── .gitignore                  # Git ignore rules
 ├── backend                     # Backend server and network monitoring code folder/directory
 │   ├── database.py             # Database models and SQLAlchemy setup
@@ -178,36 +179,4 @@ The backend provides several REST endpoints:
 
 2. **Port Conflicts**
    - If ports 5000 or 8000 are in use, check for other applications
-   - For port 5000: `netstat -ano | findstr 5000` (Windows) or `lsof -i :5000` (Linux/macOS)
-   - For port 8000: `netstat -ano | findstr 8000` (Windows) or `lsof -i :8000` (Linux/macOS)
-
-3. **No Events Showing**
-   - Verify the backend is running (check for "🛡️ Network monitoring ready" message)
-   - Check browser console for WebSocket connection errors
-   - Ensure you've clicked "Start Capture" on the dashboard
-
-4. **Database Issues**
-   - The SQLite database is stored in `backend/instance/network_logs.db`
-   - If corrupted, it can be safely deleted (a new one will be created)
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- [Scapy](https://scapy.net/) for network packet manipulation
-- [Flask](https://flask.palletsprojects.com/) for the backend web framework
-- [Vue.js](https://vuejs.org/) for the frontend framework
-- [Socket.IO](https://socket.io/) for real-time communication
-- [SQLAlchemy](https://www.sqlalchemy.org/) for database ORM
+   - For port 5000: `
