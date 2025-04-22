@@ -24,12 +24,13 @@ A real-time network traffic analysis tool that provides instant visibility into 
 
 ```
 network-security-dashboard/
-├── README.md                    # Project documentation and setup instructions
-├── backend                      # Backend server and network monitoring code folder/directory
+├── README.md                   # (The current file you are reading now) Project documentation and setup instructions
+├── .gitignore                  # Git ignore rules
+├── backend                     # Backend server and network monitoring code folder/directory
 │   ├── database.py             # Database models and SQLAlchemy setup
 │   ├── packet_sniffer.py       # Core network packet capture and analysis logic
 │   ├── requirements.txt        # Python dependencies for backend
-└── frontend                     # Vue.js frontend application
+└── frontend                    # Vue.js frontend application
     ├── index.html              # Main HTML entry point
     ├── package-lock.json       # NPM dependency lock file
     ├── package.json            # Frontend dependencies and scripts
