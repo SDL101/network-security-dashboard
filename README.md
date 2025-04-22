@@ -6,6 +6,21 @@
 [![Open Issues](https://img.shields.io/github/issues/SDL101/network-security-dashboard)](https://github.com/SDL101/network-security-dashboard/issues)
 [![Contributors](https://img.shields.io/github/contributors/SDL101/network-security-dashboard)](https://github.com/SDL101/network-security-dashboard/graphs/contributors)
 
+## 📊 Project Metrics
+
+### Code Statistics
+![Lines of code](https://img.shields.io/tokei/lines/github/SDL101/network-security-dashboard)
+![Files](https://img.shields.io/github/directory-file-count/SDL101/network-security-dashboard)
+![Repo Size](https://img.shields.io/github/repo-size/SDL101/network-security-dashboard)
+
+### Language Distribution
+![Top Language](https://img.shields.io/github/languages/top/SDL101/network-security-dashboard)
+![Language Count](https://img.shields.io/github/languages/count/SDL101/network-security-dashboard)
+
+### Activity
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/SDL101/network-security-dashboard)
+![GitHub last commit](https://img.shields.io/github/last-commit/SDL101/network-security-dashboard)
+
 A real-time network traffic analysis tool that provides instant visibility into network events, security threats, and connection patterns through an interactive web dashboard. Monitor your network traffic, detect potential security risks, and analyze connection patterns all in one place.
 <div style="display: flex; justify-content: space-between; margin: 20px 0;">
   <img src="https://github.com/user-attachments/assets/23301a0f-b56d-4175-954e-0ec7fc8c0fc6" style="width:45%;">
