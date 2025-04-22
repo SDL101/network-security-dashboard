@@ -27,8 +27,8 @@ A real-time network traffic analysis tool that provides instant visibility into 
 
 ```
 network-security-dashboard/
-├── README.md                   # (The current file you are reading now) Project documentation and setup instructions
-├── LICENSE                     # MIT License file (one of the most permissive open-source licenses - use repo however you'd like)
+├── README.md                   # (you're reading it now) Project documentation + setup instructions
+├── LICENSE                     # MIT License file (use this repo however you'd like)
 ├── .gitignore                  # Git ignore rules
 ├── backend                     # Backend server and network monitoring code folder/directory
 │   ├── database.py             # Database models and SQLAlchemy setup
