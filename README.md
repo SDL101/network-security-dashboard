@@ -5,6 +5,8 @@
 [![Last Commit](https://img.shields.io/github/last-commit/SDL101/network-security-dashboard)](https://github.com/SDL101/network-security-dashboard/commits/main)
 [![Open Issues](https://img.shields.io/github/issues/SDL101/network-security-dashboard)](https://github.com/SDL101/network-security-dashboard/issues)
 
+(Note: This project is still under development)
+
 A real-time network traffic analysis tool that provides instant visibility into network events, security threats, and connection patterns through an interactive web dashboard. Monitor your network traffic, detect potential security risks, and analyze connection patterns all in one place.
 
 Check out a quick video demo here:
