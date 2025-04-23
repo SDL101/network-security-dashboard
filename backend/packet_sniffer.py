@@ -14,6 +14,9 @@ from flask_sqlalchemy import SQLAlchemy
 
 # === App Setup: Initialize Flask app, enable CORS, and configure SocketIO ===
 app = Flask(__name__)  # Create the Flask application instance
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///network_logs.db'  # Configure database URI
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Disable tracking modifications
+db.init_app(app)  # Initialize SQLAlchemy with the Flask app
 CORS(app)  # Allow requests from different origins for the web app
 socketio = SocketIO(
     app,
@@ -282,6 +285,11 @@ if __name__ == "__main__":
     # Register the signal handler for graceful shutdown on SIGINT (Ctrl+C)
     signal.signal(signal.SIGINT, signal_handler)
     print("Starting server on port 5000...")
+    
+    # Create database tables
+    with app.app_context():
+        db.create_all()
+    
     # Start the packet sniffing process in a background thread
     socketio.start_background_task(start_sniffing)
     # Run the SocketIO server with the specified host, port, and configuration
