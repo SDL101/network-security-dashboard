@@ -18,7 +18,8 @@ export const useNetworkStore = defineStore("network", {
     activeFilters: {
       eventTypes: [],
       severities: [],
-      protocols: []
+      protocols: [],
+      ipAddresses: []
     },
     stats: {
       packets_analyzed: 0,
@@ -117,7 +118,8 @@ export const useNetworkStore = defineStore("network", {
       this.activeFilters = {
         eventTypes: [],
         severities: [],
-        protocols: []
+        protocols: [],
+        ipAddresses: []
       };
       this.filteredLogs = [...this.logs];
       this.currentPage = 1;
@@ -143,6 +145,14 @@ export const useNetworkStore = defineStore("network", {
         if (this.activeFilters.protocols.length > 0 && 
             !this.activeFilters.protocols.includes(log.protocol)) {
           return false;
+        }
+
+        // Check IP address filter
+        if (this.activeFilters.ipAddresses && this.activeFilters.ipAddresses.length > 0) {
+          const ipSet = new Set(this.activeFilters.ipAddresses.map(ip => ip.trim()));
+          if (!ipSet.has(log.source_ip) && !ipSet.has(log.destination_ip)) {
+            return false;
+          }
         }
 
         return true;

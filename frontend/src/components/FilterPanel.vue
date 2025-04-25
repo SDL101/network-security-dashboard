@@ -65,6 +65,19 @@
         </div>
       </div>
 
+      <div class="filter-section">
+        <h4>IP Address (Source or Destination)</h4>
+        <div class="filter-options">
+          <input
+            type="text"
+            v-model="ipInput"
+            @input="onIpInput"
+            placeholder="Enter IPs (comma separated)"
+            class="ip-input"
+          />
+        </div>
+      </div>
+
       <div class="filter-actions">
         <button @click="clearFilters" class="clear-btn">Clear All Filters</button>
       </div>
@@ -105,11 +118,14 @@ const protocols = [
 const selectedEventTypes = ref([]);
 const selectedSeverities = ref([]);
 const selectedProtocols = ref([]);
+const ipInput = ref("");
+const selectedIpAddresses = ref([]);
 
 const hasActiveFilters = computed(() => {
   return selectedEventTypes.value.length > 0 || 
          selectedSeverities.value.length > 0 || 
-         selectedProtocols.value.length > 0;
+         selectedProtocols.value.length > 0 ||
+         selectedIpAddresses.value.length > 0;
 });
 
 const activeFilters = computed(() => {
@@ -133,6 +149,10 @@ const activeFilters = computed(() => {
     );
   }
   
+  if (selectedIpAddresses.value.length > 0) {
+    filters['IP Address'] = selectedIpAddresses.value;
+  }
+  
   return filters;
 });
 
@@ -140,14 +160,26 @@ const updateFilters = () => {
   networkStore.updateFilters({
     eventTypes: selectedEventTypes.value,
     severities: selectedSeverities.value,
-    protocols: selectedProtocols.value
+    protocols: selectedProtocols.value,
+    ipAddresses: selectedIpAddresses.value
   });
+};
+
+const onIpInput = () => {
+  // Split by comma, trim, and filter out empty strings
+  selectedIpAddresses.value = ipInput.value
+    .split(',')
+    .map(ip => ip.trim())
+    .filter(ip => ip.length > 0);
+  updateFilters();
 };
 
 const clearFilters = () => {
   selectedEventTypes.value = [];
   selectedSeverities.value = [];
   selectedProtocols.value = [];
+  ipInput.value = "";
+  selectedIpAddresses.value = [];
   networkStore.clearFilters();
 };
 
@@ -162,6 +194,8 @@ onMounted(() => {
     selectedEventTypes.value = currentFilters.eventTypes || [];
     selectedSeverities.value = currentFilters.severities || [];
     selectedProtocols.value = currentFilters.protocols || [];
+    selectedIpAddresses.value = currentFilters.ipAddresses || [];
+    ipInput.value = selectedIpAddresses.value.join(', ');
   }
 });
 </script>
@@ -320,5 +354,16 @@ onMounted(() => {
   border-radius: 4px;
   color: var(--primary);
   font-size: 0.8rem;
+}
+
+.ip-input {
+  min-width: 220px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(54, 153, 255, 0.3);
+  background: rgba(255,255,255,0.07);
+  color: var(--text);
+  font-size: 0.95rem;
+  margin-bottom: 6px;
 }
 </style>
