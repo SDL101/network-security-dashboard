@@ -12,3 +12,9 @@ class NetworkLog(db.Model):
     destination_ip = db.Column(db.String(100), nullable=False)  # Dest IP
     event_type = db.Column(db.String(100), nullable=False)  # Type of event
     details = db.Column(db.Text, nullable=True)  # Extra info
+
+class CaptureSession(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    timestamp = db.Column(db.String(100), nullable=False)
+    logs = db.Column(db.Text, nullable=False)  # Store logs as JSON string

@@ -9,8 +9,9 @@ import time  # Provides time-related functions for tracking uptime and timestamp
 import threading  # To enable multi-threaded operations
 import signal  # Handle OS-level signals for graceful shutdown
 import sys  # System-specific parameters and functions
-from database import db, NetworkLog
+from database import db, NetworkLog, CaptureSession
 from flask_sqlalchemy import SQLAlchemy  
+import json
 
 # === App Setup: Initialize Flask app, enable CORS, and configure SocketIO ===
 app = Flask(__name__)  # Create the Flask application instance
@@ -279,6 +280,61 @@ def get_logs():
         "logs": stats.get("logs", []),
         "stats": format_stats()
     })
+
+@app.route('/save_session', methods=['POST'])
+def save_session():
+    data = request.get_json()
+    title = data.get('title')
+    logs = data.get('logs')
+    timestamp = data.get('timestamp')
+    if not title or not logs or not timestamp:
+        return jsonify({'status': 'error', 'message': 'Missing required fields'}), 400
+    session = CaptureSession(
+        title=title,
+        timestamp=timestamp,
+        logs=json.dumps(logs)
+    )
+    db.session.add(session)
+    db.session.commit()
+    return jsonify({'status': 'success', 'id': session.id})
+
+@app.route('/list_sessions')
+def list_sessions():
+    sessions = CaptureSession.query.order_by(CaptureSession.id.desc()).all()
+    result = []
+    for s in sessions:
+        try:
+            logs = json.loads(s.logs)
+            log_count = len(logs)
+        except Exception:
+            log_count = 0
+        result.append({
+            'id': s.id,
+            'title': s.title,
+            'timestamp': s.timestamp,
+            'log_count': log_count
+        })
+    return jsonify(result)
+
+@app.route('/get_session_logs/<int:session_id>')
+def get_session_logs(session_id):
+    session = CaptureSession.query.get(session_id)
+    if not session:
+        return jsonify({'status': 'error', 'message': 'Session not found'}), 404
+    try:
+        logs = json.loads(session.logs)
+    except Exception:
+        logs = []
+    return jsonify({'logs': logs, 'title': session.title, 'timestamp': session.timestamp})
+
+@app.route('/delete_session/<int:session_id>', methods=['DELETE'])
+def delete_session(session_id):
+    session = CaptureSession.query.get(session_id)
+    if not session:
+        return jsonify({'status': 'error', 'message': 'Session not found'}), 404
+    db.session.delete(session)
+    db.session.commit()
+    return jsonify({'status': 'success'})
 
 # === Main: Set up signal handling, initiate background packet sniffing, and run the server ===
 if __name__ == "__main__":
