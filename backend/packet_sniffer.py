@@ -1,5 +1,5 @@
 # === Imports: ===
-from scapy.all import sniff, IP, TCP, UDP  # Packet sniffing and protocol layers for network analysis
+from scapy.all import sniff, IP, TCP, UDP, DNS, DNSQR  # Packet sniffing and protocol layers for network analysis
 from flask_socketio import SocketIO  # Real-time communication using SocketIO
 from flask import Flask, jsonify, request  # Core Flask components for web server and API endpoints
 from flask_cors import CORS  # Enable CORS to allow cross-origin requests from clients
@@ -105,6 +105,7 @@ def detect_threat(packet):
 
         # Protocol detection
         protocol = "Other"
+        dns_details = None
         if packet.haslayer(TCP):
             sport = packet[TCP].sport
             dport = packet[TCP].dport
@@ -142,12 +143,17 @@ def detect_threat(packet):
                 protocol = f"TCP ({dport})"
             
         elif packet.haslayer(UDP):
-            # Get UDP port information
             sport = packet[UDP].sport
             dport = packet[UDP].dport
             # Identify common UDP services
             if dport == 53 or sport == 53:
                 protocol = "DNS"
+                # Try to extract DNS query name
+                if packet.haslayer(DNS) and packet.haslayer(DNSQR):
+                    qname = packet[DNSQR].qname.decode(errors='ignore').rstrip('.')
+                    dns_details = f"Queried domain: {qname}" if qname else "N/A"
+                else:
+                    dns_details = "N/A"
             elif dport == 67 or dport == 68:
                 protocol = "DHCP"
             else:
@@ -162,7 +168,7 @@ def detect_threat(packet):
             "destination_ip": packet[IP].dst,
             "protocol": protocol,
             "event_type": "normal_traffic",
-            "details": "Normal network traffic",
+            "details": dns_details if dns_details is not None else "Normal network traffic",
             "severity": "low"
         }
 
