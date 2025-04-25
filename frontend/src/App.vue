@@ -150,14 +150,14 @@ watch(activeTab, (tab) => {
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
 .main-title {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 2rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 2.2rem;
   font-weight: 800;
   margin: 0;
-  background: linear-gradient(135deg, #4a90e2, #2c3e50);
+  background: linear-gradient(135deg, #4f8cff, #5cb3ff);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
