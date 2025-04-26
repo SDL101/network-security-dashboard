@@ -272,13 +272,15 @@ def reset_stats():
     global stats
     stats = get_initial_stats()
 
-# === API Endpoint: Clear logs and reset all statistics via a POST request ===
+# === API Endpoints ===
+
+# POST /clear_logs: Clear all in-memory logs and reset statistics for the current live session.
 @app.route('/clear_logs', methods=['POST'])
 def clear_logs():
     reset_stats()  # Use existing function instead of duplicating logic
     return jsonify({"status": "success", "message": "Logs cleared successfully"})
 
-# === API Endpoint: Retrieve current logs and statistics via a GET request ===
+# GET /get_logs: Retrieve logs and stats from the current live capture session (in-memory, real-time).
 @app.route('/get_logs')
 def get_logs():
     # Return the logs and formatted stats as a JSON response
@@ -287,6 +289,7 @@ def get_logs():
         "stats": format_stats()
     })
 
+# POST /save_session: Save the current logs as a new capture session in the database (with title and timestamp).
 @app.route('/save_session', methods=['POST'])
 def save_session():
     data = request.get_json()
@@ -304,6 +307,7 @@ def save_session():
     db.session.commit()
     return jsonify({'status': 'success', 'id': session.id})
 
+# GET /list_sessions: List all saved capture sessions (title, timestamp, event count, id).
 @app.route('/list_sessions')
 def list_sessions():
     sessions = CaptureSession.query.order_by(CaptureSession.id.desc()).all()
@@ -322,6 +326,7 @@ def list_sessions():
         })
     return jsonify(result)
 
+# GET /get_session_logs/<session_id>: Retrieve logs for a specific saved session from the database.
 @app.route('/get_session_logs/<int:session_id>')
 def get_session_logs(session_id):
     session = CaptureSession.query.get(session_id)
@@ -333,6 +338,7 @@ def get_session_logs(session_id):
         logs = []
     return jsonify({'logs': logs, 'title': session.title, 'timestamp': session.timestamp})
 
+# DELETE /delete_session/<session_id>: Delete a specific saved capture session from the database.
 @app.route('/delete_session/<int:session_id>', methods=['DELETE'])
 def delete_session(session_id):
     session = CaptureSession.query.get(session_id)
