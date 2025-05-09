@@ -19,7 +19,9 @@ export const useNetworkStore = defineStore("network", {
       eventTypes: [],
       severities: [],
       protocols: [],
-      ipAddresses: []
+      ipAddresses: [],
+      srcPort: null,
+      dstPort: null,
     },
     stats: {
       packets_analyzed: 0,
@@ -110,7 +112,14 @@ export const useNetworkStore = defineStore("network", {
     },
 
     updateFilters(filters) {
-      this.activeFilters = filters;
+      this.activeFilters = {
+        eventTypes: filters.eventTypes || [],
+        severities: filters.severities || [],
+        protocols: filters.protocols || [],
+        ipAddresses: filters.ipAddresses || [],
+        srcPort: filters.srcPort ?? null,
+        dstPort: filters.dstPort ?? null,
+      };
       this.applyFilters();
     },
 
@@ -119,7 +128,9 @@ export const useNetworkStore = defineStore("network", {
         eventTypes: [],
         severities: [],
         protocols: [],
-        ipAddresses: []
+        ipAddresses: [],
+        srcPort: null,
+        dstPort: null,
       };
       this.filteredLogs = [...this.logs];
       this.currentPage = 1;
@@ -127,26 +138,22 @@ export const useNetworkStore = defineStore("network", {
 
     applyFilters() {
       this.currentPage = 1;
-      
       this.filteredLogs = this.logs.filter(log => {
         // Check event type filter
         if (this.activeFilters.eventTypes.length > 0 && 
             !this.activeFilters.eventTypes.includes(log.event_type)) {
           return false;
         }
-
         // Check severity filter
         if (this.activeFilters.severities.length > 0 && 
             !this.activeFilters.severities.includes(log.severity)) {
           return false;
         }
-
         // Check protocol filter
         if (this.activeFilters.protocols.length > 0 && 
             !this.activeFilters.protocols.includes(log.protocol)) {
           return false;
         }
-
         // Check IP address filter
         if (this.activeFilters.ipAddresses && this.activeFilters.ipAddresses.length > 0) {
           const ipSet = new Set(this.activeFilters.ipAddresses.map(ip => ip.trim()));
@@ -154,7 +161,27 @@ export const useNetworkStore = defineStore("network", {
             return false;
           }
         }
-
+        // Bidirectional stream following logic
+        if (this.activeFilters.srcPort != null && this.activeFilters.dstPort != null && this.activeFilters.protocols.length > 0 && this.activeFilters.ipAddresses.length === 2) {
+          const [ipA, ipB] = this.activeFilters.ipAddresses;
+          const portA = this.activeFilters.srcPort;
+          const portB = this.activeFilters.dstPort;
+          const protocol = this.activeFilters.protocols[0];
+          const forward = log.source_ip === ipA && log.source_port === portA && log.destination_ip === ipB && log.destination_port === portB && log.protocol === protocol;
+          const reverse = log.source_ip === ipB && log.source_port === portB && log.destination_ip === ipA && log.destination_port === portA && log.protocol === protocol;
+          if (!(forward || reverse)) {
+            return false;
+          }
+        } else {
+          // Check source port filter (if set, but not in stream-follow mode)
+          if (this.activeFilters.srcPort != null && log.source_port !== this.activeFilters.srcPort) {
+            return false;
+          }
+          // Check destination port filter (if set, but not in stream-follow mode)
+          if (this.activeFilters.dstPort != null && log.destination_port !== this.activeFilters.dstPort) {
+            return false;
+          }
+        }
         return true;
       });
     },
@@ -226,8 +253,10 @@ export const useNetworkStore = defineStore("network", {
       const headers = [
         "Time",
         "Event Type",
-        "Source IP",
-        "Destination IP",
+        "Src IP",
+        "Src Port",
+        "Dst IP",
+        "Dst Port",
         "Protocol",
         "Severity",
         "Details",
@@ -237,7 +266,9 @@ export const useNetworkStore = defineStore("network", {
         new Date(log.timestamp).toISOString(),
         log.event_type,
         log.source_ip,
+        log.source_port ?? "-",
         log.destination_ip,
+        log.destination_port ?? "-",
         log.protocol,
         log.severity,
         log.details,

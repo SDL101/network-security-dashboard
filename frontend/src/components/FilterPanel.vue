@@ -7,9 +7,10 @@
           <span v-if="!hasActiveFilters">No filters active</span>
           <template v-else>
             <span v-for="(filters, category) in activeFilters" :key="category" class="filter-category">
-              <span v-for="filter in filters" :key="filter" class="active-filter">
+              <span v-for="filter in filters" :key="filter" class="active-filter" v-if="category !== 'Stream'">
                 {{ filter }}
               </span>
+              <span v-for="filter in filters" :key="'stream-badge-' + filter" class="active-filter stream-badge" v-else v-html="filter"></span>
             </span>
           </template>
         </div>
@@ -122,10 +123,20 @@ const ipInput = ref("");
 const selectedIpAddresses = ref([]);
 
 const hasActiveFilters = computed(() => {
-  return selectedEventTypes.value.length > 0 || 
-         selectedSeverities.value.length > 0 || 
-         selectedProtocols.value.length > 0 ||
-         selectedIpAddresses.value.length > 0;
+  // Also show as active if stream-following is active
+  const storeFilters = networkStore.activeFilters;
+  const streamActive =
+    storeFilters.srcPort != null &&
+    storeFilters.dstPort != null &&
+    storeFilters.protocols && storeFilters.protocols.length === 1 &&
+    storeFilters.ipAddresses && storeFilters.ipAddresses.length === 2;
+  return (
+    selectedEventTypes.value.length > 0 ||
+    selectedSeverities.value.length > 0 ||
+    selectedProtocols.value.length > 0 ||
+    selectedIpAddresses.value.length > 0 ||
+    streamActive
+  );
 });
 
 const activeFilters = computed(() => {
@@ -151,6 +162,21 @@ const activeFilters = computed(() => {
   
   if (selectedIpAddresses.value.length > 0) {
     filters['IP Address'] = selectedIpAddresses.value;
+  }
+  
+  // Add stream-following badge if all 5-tuple fields are set
+  const storeFilters = networkStore.activeFilters;
+  if (
+    storeFilters.srcPort != null &&
+    storeFilters.dstPort != null &&
+    storeFilters.protocols && storeFilters.protocols.length === 1 &&
+    storeFilters.ipAddresses && storeFilters.ipAddresses.length === 2
+  ) {
+    const [srcIp, dstIp] = storeFilters.ipAddresses;
+    const proto = storeFilters.protocols[0];
+    filters['Stream'] = [
+      `Stream: <span class='stream-key'>Src IP:</span> <span class='stream-value'>${srcIp}</span>  <span class='stream-key'>Src Port:</span> <span class='stream-value'>${storeFilters.srcPort}</span> ⇄ <span class='stream-key'>Dst IP:</span> <span class='stream-value'>${dstIp}</span>  <span class='stream-key'>Dst Port:</span> <span class='stream-value'>${storeFilters.dstPort}</span>  <span class='stream-key'>Protocol:</span> <span class='stream-value'>${proto}</span>`
+    ];
   }
   
   return filters;

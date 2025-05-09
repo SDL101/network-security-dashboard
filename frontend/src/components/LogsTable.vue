@@ -23,8 +23,10 @@
         <tr>
           <th>Time</th>
           <th>Event Type</th>
-          <th>Source IP</th>
-          <th>Destination IP</th>
+          <th>Src IP</th>
+          <th>Src Port</th>
+          <th>Dst IP</th>
+          <th>Dst Port</th>
           <th>Protocol</th>
           <th>Severity</th>
           <th>Details</th>
@@ -35,6 +37,7 @@
           v-for="log in displayedLogs"
           :key="log.id"
           :class="[log.event_type.toLowerCase(), log.severity.toLowerCase()]"
+          @click="followStream(log)"
         >
           <td>{{ formatTime(log.timestamp) }}</td>
           <td>
@@ -43,7 +46,9 @@
             </span>
           </td>
           <td>{{ log.source_ip }}</td>
+          <td>{{ log.source_port ?? '-' }}</td>
           <td>{{ log.destination_ip }}</td>
+          <td>{{ log.destination_port ?? '-' }}</td>
           <td>
             <span class="protocol-badge" :data-protocol="log.protocol">
               {{ log.protocol }}
@@ -134,6 +139,18 @@ const formatEventType = (eventType) => {
 
 const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+const followStream = (log) => {
+  // Set filters for the 5-tuple (src IP, src port, dst IP, dst port, protocol)
+  networkStore.updateFilters({
+    eventTypes: [],
+    severities: [],
+    protocols: log.protocol ? [log.protocol] : [],
+    ipAddresses: [log.source_ip, log.destination_ip],
+    srcPort: log.source_port,
+    dstPort: log.destination_port,
+  });
 };
 </script>
 

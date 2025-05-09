@@ -10,6 +10,9 @@ class NetworkLog(db.Model):
     timestamp = db.Column(db.String(100), nullable=False)  # When log happened
     source_ip = db.Column(db.String(100), nullable=False)  # Orig IP
     destination_ip = db.Column(db.String(100), nullable=False)  # Dest IP
+    source_port = db.Column(db.Integer, nullable=True)  # Orig Port
+    destination_port = db.Column(db.Integer, nullable=True)  # Dest Port
+    protocol = db.Column(db.String(50), nullable=True)  # Protocol (TCP/UDP/ICMP/etc)
     event_type = db.Column(db.String(100), nullable=False)  # Type of event
     details = db.Column(db.Text, nullable=True)  # Extra info
 

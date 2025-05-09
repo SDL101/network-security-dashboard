@@ -106,6 +106,8 @@ def detect_threat(packet):
         # Protocol detection
         protocol = "Other"
         dns_details = None
+        sport = None
+        dport = None
         if packet.haslayer(TCP):
             sport = packet[TCP].sport
             dport = packet[TCP].dport
@@ -166,6 +168,8 @@ def detect_threat(packet):
             "timestamp": str(datetime.datetime.now()),
             "source_ip": packet[IP].src,
             "destination_ip": packet[IP].dst,
+            "source_port": sport,
+            "destination_port": dport,
             "protocol": protocol,
             "event_type": "normal_traffic",
             "details": dns_details if dns_details is not None else "Normal network traffic",
@@ -219,6 +223,9 @@ def detect_threat(packet):
                 timestamp=log_entry["timestamp"],
                 source_ip=log_entry["source_ip"],
                 destination_ip=log_entry["destination_ip"],
+                source_port=log_entry["source_port"],
+                destination_port=log_entry["destination_port"],
+                protocol=log_entry["protocol"],
                 event_type=log_entry["event_type"],
                 details=log_entry["details"]
             )
