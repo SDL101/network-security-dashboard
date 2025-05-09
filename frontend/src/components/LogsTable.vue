@@ -23,12 +23,12 @@
         <tr>
           <th>Time</th>
           <th>Event Type</th>
-          <th>Src IP</th>
-          <th>Src Port</th>
-          <th>Dst IP</th>
-          <th>Dst Port</th>
-          <th>Protocol</th>
-          <th>Severity</th>
+          <th><span class="header-src">SRC</span><br><span class="header-ip">IP</span></th>
+          <th><span class="header-src">SRC</span><br><span class="header-port">Port</span></th>
+          <th><span class="header-dst">DST</span><br><span class="header-ip">IP</span></th>
+          <th><span class="header-dst">DST</span><br><span class="header-port">Port</span></th>
+          <th>Proto</th>
+          <th>Sev</th>
           <th>Details</th>
         </tr>
       </thead>
@@ -39,7 +39,10 @@
           :class="[log.event_type.toLowerCase(), log.severity.toLowerCase()]"
           @click="followStream(log)"
         >
-          <td>{{ formatTime(log.timestamp) }}</td>
+          <td>
+            <span class="log-time-time">{{ formatClock(log.timestamp) }}</span><br>
+            <span class="log-time-date">{{ formatDate(log.timestamp) }}</span>
+          </td>
           <td>
             <span class="event-type" :class="log.event_type.toLowerCase()">
               {{ formatEventType(log.event_type) }}
@@ -111,18 +114,23 @@ onMounted(() => {
   networkStore.filterLogsByType("");
 });
 
-const formatTime = (timestamp) => {
+const formatDate = (timestamp) => {
   const date = new Date(timestamp);
-  const options = {
-    year: "2-digit", // Testing abbr year to dec width
+  return date.toLocaleDateString(undefined, {
+    year: "2-digit",
     month: "2-digit",
     day: "2-digit",
+  });
+};
+
+const formatClock = (timestamp) => {
+  const date = new Date(timestamp);
+  return date.toLocaleTimeString(undefined, {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
-    hour12: false, // Use 24-hour time so I don't have to waste space with am/pm
-  };
-  return date.toLocaleString(undefined, options);
+    hour12: false,
+  });
 };
 
 const formatEventType = (eventType) => {
@@ -477,5 +485,56 @@ tr.normal_traffic td {
   background-color: var(--primary);
   color: var(--background);
   border-color: var(--primary);
+}
+
+.log-time-time {
+  font-size: 1em;
+  font-weight: 700;
+  color: #222;
+  letter-spacing: 0.01em;
+}
+.log-time-date {
+  font-size: 0.78em;
+  color: #888;
+  font-weight: 400;
+}
+
+.logs-table th:nth-child(4),
+.logs-table td:nth-child(4) {
+  padding-left: 6px;
+  padding-right: 8px;
+  min-width: 60px;
+  max-width: 70px;
+}
+.logs-table th:nth-child(5),
+.logs-table td:nth-child(5) {
+  padding-left: 8px;
+  padding-right: 8px;
+  min-width: 120px;
+  max-width: 160px;
+}
+
+.header-src {
+  font-size: 0.95em;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.header-dst {
+  font-size: 0.95em;
+  font-weight: 700;
+  color: #1e88e5;
+  letter-spacing: 0.02em;
+}
+.header-port {
+  font-size: 0.85em;
+  font-weight: 400;
+  color: #888;
+  letter-spacing: 0.01em;
+}
+.header-ip {
+  font-size: 0.85em;
+  font-weight: 400;
+  color: #888;
+  letter-spacing: 0.01em;
 }
 </style>
