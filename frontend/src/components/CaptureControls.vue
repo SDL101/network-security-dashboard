@@ -65,8 +65,19 @@
           placeholder="Enter a title for this session"
           class="modal-input"
         />
-        <div class="modal-actions">
-          <button @click="saveSession" :disabled="!sessionTitle.trim()" class="control-btn">Save</button>
+        <div v-if="isFilterActive" class="modal-filter-warning">
+          <p style="margin-bottom: 10px; color: var(--warning);">
+            You currently have a filter applied.<br>
+            Would you like to save the filtered logs or all logs from the session?
+          </p>
+          <div class="modal-actions">
+            <button @click="saveSession('filtered')" :disabled="!sessionTitle.trim()" class="control-btn">Save Filtered</button>
+            <button @click="saveSession('all')" :disabled="!sessionTitle.trim()" class="control-btn">Save All</button>
+            <button @click="closeModal" class="control-btn">Cancel</button>
+          </div>
+        </div>
+        <div v-else class="modal-actions">
+          <button @click="saveSession('all')" :disabled="!sessionTitle.trim()" class="control-btn">Save</button>
           <button @click="closeModal" class="control-btn">Cancel</button>
         </div>
         <div v-if="saveError" class="modal-error">{{ saveError }}</div>
@@ -76,7 +87,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useNetworkStore } from "../stores/networkStore";
 
 const networkStore = useNetworkStore();
@@ -85,6 +96,11 @@ const isScrollView = ref(false);
 const showSaveModal = ref(false);
 const sessionTitle = ref("");
 const saveError = ref("");
+
+// Detect if a filter is active (filteredLogs is a subset of logs)
+const isFilterActive = computed(() => {
+  return networkStore.filteredLogs.length !== networkStore.logs.length;
+});
 
 console.log("CaptureControls mounted, networkStore:", {
   isCapturing: networkStore.isCapturing,
@@ -120,15 +136,21 @@ const closeModal = () => {
   saveError.value = "";
 };
 
-const saveSession = async () => {
+const saveSession = async (which) => {
   saveError.value = "";
+  let logsToSend;
+  if (which === 'filtered') {
+    logsToSend = networkStore.filteredLogs;
+  } else {
+    logsToSend = networkStore.logs;
+  }
   try {
     const response = await fetch("http://localhost:5000/save_session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title: sessionTitle.value,
-        logs: networkStore.logs,
+        logs: logsToSend,
         timestamp: new Date().toISOString(),
       }),
     });
@@ -221,5 +243,10 @@ const saveSession = async () => {
   color: var(--danger);
   font-size: 0.95rem;
   margin-top: 4px;
+}
+.modal-filter-warning {
+  color: var(--warning);
+  font-size: 0.95rem;
+  margin-bottom: 10px;
 }
 </style>

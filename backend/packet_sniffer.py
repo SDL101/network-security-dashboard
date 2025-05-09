@@ -303,6 +303,9 @@ def save_session():
     title = data.get('title')
     logs = data.get('logs')
     timestamp = data.get('timestamp')
+    # If logs is missing or empty, use all current logs
+    if not logs:
+        logs = stats.get("logs", [])
     if not title or not logs or not timestamp:
         return jsonify({'status': 'error', 'message': 'Missing required fields'}), 400
     session = CaptureSession(
