@@ -170,13 +170,12 @@ const activeFilters = computed(() => {
   if (
     storeFilters.srcPort != null &&
     storeFilters.dstPort != null &&
-    storeFilters.protocols && storeFilters.protocols.length === 1 &&
     storeFilters.ipAddresses && storeFilters.ipAddresses.length === 2
   ) {
     const [srcIp, dstIp] = storeFilters.ipAddresses;
-    const proto = storeFilters.protocols[0];
+    const proto = storeFilters.protocols && storeFilters.protocols.length === 1 ? storeFilters.protocols[0] : '';
     filters['Stream'] = [
-      `Stream: <span class='stream-key' style='color:#43a047;font-weight:600;'>Src IP:</span> <span class='stream-value' style='color:#1976d2;font-weight:500;'>${srcIp}</span>  <span class='stream-key' style='color:#43a047;font-weight:600;'>Src Port:</span> <span class='stream-value' style='color:#1976d2;font-weight:500;'>${storeFilters.srcPort}</span> ⇄ <span class='stream-key' style='color:#d63031;font-weight:600;'>Dst IP:</span> <span class='stream-value' style='color:#1976d2;font-weight:500;'>${dstIp}</span>  <span class='stream-key' style='color:#d63031;font-weight:600;'>Dst Port:</span> <span class='stream-value' style='color:#1976d2;font-weight:500;'>${storeFilters.dstPort}</span>  <span class='stream-key' style='color:#e6c75a;font-weight:600;'>Protocol:</span> <span class='stream-value' style='color:#1976d2;font-weight:500;'>${proto}</span>`
+      `Stream: <span class='stream-key' style='color:#43a047;font-weight:600;'>Src IP:</span> <span class='stream-value' style='color:#1976d2;font-weight:500;'>${srcIp}</span>  <span class='stream-key' style='color:#43a047;font-weight:600;'>Src Port:</span> <span class='stream-value' style='color:#1976d2;font-weight:500;'>${storeFilters.srcPort}</span> ⇄ <span class='stream-key' style='color:#d63031;font-weight:600;'>Dst IP:</span> <span class='stream-value' style='color:#1976d2;font-weight:500;'>${dstIp}</span>  <span class='stream-key' style='color:#d63031;font-weight:600;'>Dst Port:</span> <span class='stream-value' style='color:#1976d2;font-weight:500;'>${storeFilters.dstPort}</span>` + (proto ? `  <span class='stream-key' style='color:#e6c75a;font-weight:600;'>Protocol:</span> <span class='stream-value' style='color:#1976d2;font-weight:500;'>${proto}</span>` : '')
     ];
   }
   
@@ -223,7 +222,6 @@ const isStreamFollowing = computed(() => {
   return (
     f.srcPort != null &&
     f.dstPort != null &&
-    f.protocols && f.protocols.length === 1 &&
     f.ipAddresses && f.ipAddresses.length === 2
   );
 });

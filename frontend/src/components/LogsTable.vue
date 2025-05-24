@@ -150,11 +150,12 @@ const scrollToTop = () => {
 };
 
 const followStream = (log) => {
-  // Set filters for the 5-tuple (src IP, src port, dst IP, dst port, protocol)
+  // Merge with current filter selections, but do NOT set protocols
+  const current = networkStore.activeFilters;
   networkStore.updateFilters({
-    eventTypes: [],
-    severities: [],
-    protocols: log.protocol ? [log.protocol] : [],
+    eventTypes: current.eventTypes,
+    severities: current.severities,
+    protocols: current.protocols, // preserve current protocol filter
     ipAddresses: [log.source_ip, log.destination_ip],
     srcPort: log.source_port,
     dstPort: log.destination_port,

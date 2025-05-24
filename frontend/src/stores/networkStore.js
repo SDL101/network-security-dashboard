@@ -162,14 +162,31 @@ export const useNetworkStore = defineStore("network", {
           }
         }
         // Bidirectional stream following logic
-        if (this.activeFilters.srcPort != null && this.activeFilters.dstPort != null && this.activeFilters.protocols.length > 0 && this.activeFilters.ipAddresses.length === 2) {
+        if (
+          this.activeFilters.srcPort != null &&
+          this.activeFilters.dstPort != null &&
+          this.activeFilters.ipAddresses.length === 2
+        ) {
           const [ipA, ipB] = this.activeFilters.ipAddresses;
           const portA = this.activeFilters.srcPort;
           const portB = this.activeFilters.dstPort;
-          const protocol = this.activeFilters.protocols[0];
-          const forward = log.source_ip === ipA && log.source_port === portA && log.destination_ip === ipB && log.destination_port === portB && log.protocol === protocol;
-          const reverse = log.source_ip === ipB && log.source_port === portB && log.destination_ip === ipA && log.destination_port === portA && log.protocol === protocol;
-          if (!(forward || reverse)) {
+          const protocolMatch =
+            this.activeFilters.protocols.length === 0 ||
+            this.activeFilters.protocols.includes(log.protocol);
+
+          const forward =
+            log.source_ip === ipA &&
+            log.source_port === portA &&
+            log.destination_ip === ipB &&
+            log.destination_port === portB;
+
+          const reverse =
+            log.source_ip === ipB &&
+            log.source_port === portB &&
+            log.destination_ip === ipA &&
+            log.destination_port === portA;
+
+          if (!(protocolMatch && (forward || reverse))) {
             return false;
           }
         } else {
