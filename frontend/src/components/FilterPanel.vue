@@ -7,7 +7,7 @@
           <span v-if="!hasActiveFilters">No filters active</span>
           <template v-else>
             <span v-for="(filters, category) in activeFilters" :key="category" class="filter-category">
-              <span v-for="filter in filters" :key="filter" class="active-filter" v-if="category !== 'Stream'">
+              <span v-for="filter in filters" :key="filter" class="active-filter default-filter-badge" v-if="category !== 'Stream'">
                 {{ filter }}
               </span>
               <span v-for="filter in filters" :key="'stream-badge-' + filter" class="active-filter stream-badge" v-else v-html="filter"></span>
@@ -75,6 +75,7 @@
             @input="onIpInput"
             placeholder="Enter IPs (comma separated)"
             class="ip-input"
+            :disabled="isStreamFollowing"
           />
         </div>
       </div>
@@ -87,7 +88,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useNetworkStore } from '../stores/networkStore';
 
 const networkStore = useNetworkStore();
@@ -160,7 +161,7 @@ const activeFilters = computed(() => {
     );
   }
   
-  if (selectedIpAddresses.value.length > 0) {
+  if (!isStreamFollowing.value && selectedIpAddresses.value.length > 0) {
     filters['IP Address'] = selectedIpAddresses.value;
   }
   
@@ -175,7 +176,7 @@ const activeFilters = computed(() => {
     const [srcIp, dstIp] = storeFilters.ipAddresses;
     const proto = storeFilters.protocols[0];
     filters['Stream'] = [
-      `Stream: <span class='stream-key'>Src IP:</span> <span class='stream-value'>${srcIp}</span>  <span class='stream-key'>Src Port:</span> <span class='stream-value'>${storeFilters.srcPort}</span> ⇄ <span class='stream-key'>Dst IP:</span> <span class='stream-value'>${dstIp}</span>  <span class='stream-key'>Dst Port:</span> <span class='stream-value'>${storeFilters.dstPort}</span>  <span class='stream-key'>Protocol:</span> <span class='stream-value'>${proto}</span>`
+      `Stream: <span class='stream-key' style='color:#43a047;font-weight:600;'>Src IP:</span> <span class='stream-value' style='color:#1976d2;font-weight:500;'>${srcIp}</span>  <span class='stream-key' style='color:#43a047;font-weight:600;'>Src Port:</span> <span class='stream-value' style='color:#1976d2;font-weight:500;'>${storeFilters.srcPort}</span> ⇄ <span class='stream-key' style='color:#d63031;font-weight:600;'>Dst IP:</span> <span class='stream-value' style='color:#1976d2;font-weight:500;'>${dstIp}</span>  <span class='stream-key' style='color:#d63031;font-weight:600;'>Dst Port:</span> <span class='stream-value' style='color:#1976d2;font-weight:500;'>${storeFilters.dstPort}</span>  <span class='stream-key' style='color:#e6c75a;font-weight:600;'>Protocol:</span> <span class='stream-value' style='color:#1976d2;font-weight:500;'>${proto}</span>`
     ];
   }
   
@@ -183,11 +184,15 @@ const activeFilters = computed(() => {
 });
 
 const updateFilters = () => {
+  // Merge with existing stream-following fields if present
+  const current = networkStore.activeFilters;
   networkStore.updateFilters({
     eventTypes: selectedEventTypes.value,
     severities: selectedSeverities.value,
     protocols: selectedProtocols.value,
-    ipAddresses: selectedIpAddresses.value
+    ipAddresses: selectedIpAddresses.value,
+    srcPort: current.srcPort,
+    dstPort: current.dstPort,
   });
 };
 
@@ -212,6 +217,37 @@ const clearFilters = () => {
 const toggleFilters = () => {
   isExpanded.value = !isExpanded.value;
 };
+
+const isStreamFollowing = computed(() => {
+  const f = networkStore.activeFilters;
+  return (
+    f.srcPort != null &&
+    f.dstPort != null &&
+    f.protocols && f.protocols.length === 1 &&
+    f.ipAddresses && f.ipAddresses.length === 2
+  );
+});
+
+// Watch for stream-following activation to clear IP filter
+watch(isStreamFollowing, (active) => {
+  if (active) {
+    selectedIpAddresses.value = [];
+    ipInput.value = '';
+  }
+});
+
+// Sync local filter state with store's activeFilters
+watch(
+  () => networkStore.activeFilters,
+  (newFilters) => {
+    selectedEventTypes.value = newFilters.eventTypes || [];
+    selectedSeverities.value = newFilters.severities || [];
+    selectedProtocols.value = newFilters.protocols || [];
+    selectedIpAddresses.value = newFilters.ipAddresses || [];
+    ipInput.value = selectedIpAddresses.value.join(', ');
+  },
+  { deep: true }
+);
 
 onMounted(() => {
   // Initialize with any existing filters from the store
@@ -378,8 +414,30 @@ onMounted(() => {
   background: rgba(54, 153, 255, 0.1);
   padding: 2px 6px;
   border-radius: 4px;
-  color: var(--primary);
   font-size: 0.8rem;
+}
+
+.default-filter-badge {
+  color: var(--primary);
+}
+
+.stream-key-src {
+  color: #43a047;
+  font-weight: 600;
+}
+
+.stream-key-dst {
+  color: #d63031;
+  font-weight: 600;
+}
+
+.stream-key {
+  font-weight: 600;
+}
+
+.stream-value {
+  color: #1976d2;
+  font-weight: 500;
 }
 
 .ip-input {
@@ -391,5 +449,14 @@ onMounted(() => {
   color: var(--text);
   font-size: 0.95rem;
   margin-bottom: 6px;
+}
+
+span.active-filter.stream-badge > .stream-key {
+  color: #1976d2 !important;
+  font-weight: 600;
+}
+span.active-filter.stream-badge > .stream-value {
+  color: #388e3c !important;
+  font-weight: 500;
 }
 </style>
