@@ -517,12 +517,14 @@ tr.normal_traffic td {
 .header-src {
   font-size: 0.95em;
   font-weight: 700;
+  color: #43a047; /* green */
   letter-spacing: 0.02em;
+  font-family: inherit;
 }
 .header-dst {
   font-size: 0.95em;
   font-weight: 700;
-  color: #1e88e5;
+  color: #d63031; /* red */
   letter-spacing: 0.02em;
 }
 .header-port {
