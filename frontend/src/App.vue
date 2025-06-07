@@ -31,6 +31,7 @@
     <div class="tab-nav">
       <button :class="{active: activeTab === 'live'}" @click="activeTab = 'live'">Live Capture</button>
       <button :class="{active: activeTab === 'archive'}" @click="activeTab = 'archive'">Capture Archive</button>
+      <button :class="{active: activeTab === 'docs'}" @click="activeTab = 'docs'">Documentation</button>
     </div>
 
     <div v-if="activeTab === 'live'">
@@ -39,7 +40,7 @@
       <CaptureControls />
       <LogsTable />
     </div>
-    <div v-else>
+    <div v-else-if="activeTab === 'archive'">
       <div class="archive-view">
         <h2>Capture Archive</h2>
         <table class="archive-table">
@@ -67,6 +68,270 @@
           </tbody>
         </table>
         <div v-if="archiveError" class="archive-error">{{ archiveError }}</div>
+      </div>
+    </div>
+    <div v-else-if="activeTab === 'docs'" class="documentation-view">
+      <!-- Documentation Content -->
+      <div class="doc-container">
+        <h2>📚 Network Security Dashboard Documentation</h2>
+        
+        <!-- Quick Start Guide -->
+        <section class="doc-section">
+          <h3>🚀 Quick Start Guide</h3>
+          <div class="doc-content">
+            <h4>1. Prerequisites</h4>
+            <ul>
+              <li><strong>Python 3.8+</strong> - For backend packet capture and analysis</li>
+              <li><strong>Node.js 14+</strong> - For frontend development</li>
+              <li><strong>Administrator privileges</strong> - Required for packet sniffing</li>
+            </ul>
+            
+            <h4>2. Starting the Application</h4>
+            <ol>
+              <li><strong>Backend:</strong> Run <code>./start_backend.sh</code> (requires sudo)</li>
+              <li><strong>Frontend:</strong> Run <code>./start_frontend.sh</code> in a separate terminal</li>
+              <li><strong>Access:</strong> Open <code>http://localhost:8000</code> in your browser</li>
+            </ol>
+            
+            <h4>3. Using the Dashboard</h4>
+            <div class="usage-steps">
+              <div class="step">
+                <span class="step-number">1</span>
+                <div class="step-content">
+                  <strong>Start Capture:</strong> Click the "Start Capture" button to begin monitoring network traffic
+                </div>
+              </div>
+              <div class="step">
+                <span class="step-number">2</span>
+                <div class="step-content">
+                  <strong>Filter Events:</strong> Use the filter panel to focus on specific event types, severities, or protocols
+                </div>
+              </div>
+              <div class="step">
+                <span class="step-number">3</span>
+                <div class="step-content">
+                  <strong>Follow Streams:</strong> Click on any log entry to follow the conversation between two endpoints
+                </div>
+              </div>
+              <div class="step">
+                <span class="step-number">4</span>
+                <div class="step-content">
+                  <strong>Export Data:</strong> Download logs as CSV or save sessions for later analysis
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Technology Stack -->
+        <section class="doc-section">
+          <h3>🛠️ Technology Stack</h3>
+          <div class="doc-content">
+            <div class="tech-grid">
+              <div class="tech-category">
+                <h4>Frontend</h4>
+                <div class="tech-item">
+                  <strong>Vue.js 3</strong> - Progressive JavaScript framework for building user interfaces
+                </div>
+                <div class="tech-item">
+                  <strong>Pinia</strong> - State management pattern + library for Vue.js applications
+                </div>
+                <div class="tech-item">
+                  <strong>Vite</strong> - Next generation frontend build tool for fast development
+                </div>
+                <div class="tech-item">
+                  <strong>Socket.IO Client</strong> - Real-time bidirectional event-based communication
+                </div>
+              </div>
+              
+              <div class="tech-category">
+                <h4>Backend</h4>
+                <div class="tech-item">
+                  <strong>Python Flask</strong> - Micro web framework for serving REST APIs
+                </div>
+                <div class="tech-item">
+                  <strong>Scapy</strong> - Powerful packet manipulation and analysis library
+                </div>
+                <div class="tech-item">
+                  <strong>SQLAlchemy</strong> - SQL toolkit and Object-Relational Mapping (ORM)
+                </div>
+                <div class="tech-item">
+                  <strong>Flask-SocketIO</strong> - WebSocket support with fallback to HTTP long-polling
+                </div>
+                <div class="tech-item">
+                  <strong>SQLite</strong> - Lightweight, disk-based database for data persistence
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Architecture Overview -->
+        <section class="doc-section">
+          <h3>🏗️ Architecture Overview</h3>
+          <div class="doc-content">
+            <div class="architecture-diagram">
+              <div class="arch-layer">
+                <h4>Frontend Layer (Vue.js)</h4>
+                <div class="arch-components">
+                  <span class="component">LogsTable.vue</span>
+                  <span class="component">FilterPanel.vue</span>
+                  <span class="component">CaptureControls.vue</span>
+                  <span class="component">StatPanel.vue</span>
+                </div>
+              </div>
+              
+              <div class="arch-arrow">⬇️ Socket.IO + REST API ⬇️</div>
+              
+              <div class="arch-layer">
+                <h4>Backend Layer (Flask)</h4>
+                <div class="arch-components">
+                  <span class="component">packet_sniffer.py</span>
+                  <span class="component">database.py</span>
+                  <span class="component">API Routes</span>
+                </div>
+              </div>
+              
+              <div class="arch-arrow">⬇️ Scapy Library ⬇️</div>
+              
+              <div class="arch-layer">
+                <h4>Network Layer</h4>
+                <div class="arch-components">
+                  <span class="component">Raw Packet Capture</span>
+                  <span class="component">Protocol Analysis</span>
+                  <span class="component">Threat Detection</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Key Components -->
+        <section class="doc-section">
+          <h3>🔧 Key Components Explained</h3>
+          <div class="doc-content">
+            <div class="component-explanation">
+              <h4>1. Packet Capture Engine (packet_sniffer.py)</h4>
+              <p>The core of the application uses <strong>Scapy</strong> to capture and analyze network packets in real-time:</p>
+              <ul>
+                <li><strong>detect_threat()</strong> - Analyzes each packet for potential security threats</li>
+                <li><strong>Port Scan Detection</strong> - Identifies SYN packets that may indicate reconnaissance</li>
+                <li><strong>Large Packet Detection</strong> - Flags unusually large UDP packets</li>
+                <li><strong>External Connection Monitoring</strong> - Tracks connections to non-private IP addresses</li>
+              </ul>
+              
+              <h4>2. State Management (networkStore.js)</h4>
+              <p>Centralized state management using <strong>Pinia</strong> handles:</p>
+              <ul>
+                <li><strong>Real-time Data Flow</strong> - Receives and processes Socket.IO events</li>
+                <li><strong>Filtering Logic</strong> - Advanced filtering with bidirectional stream following</li>
+                <li><strong>Connection Management</strong> - Automatic reconnection and error handling</li>
+                <li><strong>Pagination</strong> - Efficient handling of large datasets</li>
+              </ul>
+              
+              <h4>3. Real-time Communication</h4>
+              <p><strong>Socket.IO</strong> enables instant updates:</p>
+              <ul>
+                <li><strong>new_log</strong> - Broadcasts new network events to all connected clients</li>
+                <li><strong>capture_status</strong> - Synchronizes capture state across clients</li>
+                <li><strong>Auto-reconnection</strong> - Maintains connection stability</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Security Features -->
+        <section class="doc-section">
+          <h3>🛡️ Security Features</h3>
+          <div class="doc-content">
+            <div class="security-features">
+              <div class="feature-item">
+                <strong>Port Scan Detection</strong>
+                <p>Identifies potential reconnaissance attempts by detecting SYN packets to multiple ports</p>
+              </div>
+              <div class="feature-item">
+                <strong>External Connection Monitoring</strong>
+                <p>Tracks and highlights connections to external (non-private) IP addresses</p>
+              </div>
+              <div class="feature-item">
+                <strong>Anomaly Detection</strong>
+                <p>Flags unusually large packets that may indicate data exfiltration or attacks</p>
+              </div>
+              <div class="feature-item">
+                <strong>Real-time Alerting</strong>
+                <p>Immediate notification of security events through color-coded severity levels</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- API Reference -->
+        <section class="doc-section">
+          <h3>📡 API Reference</h3>
+          <div class="doc-content">
+            <div class="api-section">
+              <h4>REST Endpoints</h4>
+              <div class="api-endpoint">
+                <span class="method get">GET</span>
+                <code>/get_logs</code>
+                <p>Retrieve network logs with optional filtering parameters</p>
+              </div>
+              <div class="api-endpoint">
+                <span class="method post">POST</span>
+                <code>/clear_logs</code>
+                <p>Clear all stored network logs from the database</p>
+              </div>
+              <div class="api-endpoint">
+                <span class="method post">POST</span>
+                <code>/save_session</code>
+                <p>Save current capture session with custom title</p>
+              </div>
+              <div class="api-endpoint">
+                <span class="method get">GET</span>
+                <code>/list_sessions</code>
+                <p>Retrieve list of all saved capture sessions</p>
+              </div>
+              
+              <h4>Socket.IO Events</h4>
+              <div class="api-endpoint">
+                <span class="method socket">EMIT</span>
+                <code>start_capture</code>
+                <p>Begin network packet capture</p>
+              </div>
+              <div class="api-endpoint">
+                <span class="method socket">EMIT</span>
+                <code>stop_capture</code>
+                <p>Stop network packet capture</p>
+              </div>
+              <div class="api-endpoint">
+                <span class="method socket">LISTEN</span>
+                <code>new_log</code>
+                <p>Receive real-time network events</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Troubleshooting -->
+        <section class="doc-section">
+          <h3>🔧 Troubleshooting</h3>
+          <div class="doc-content">
+            <div class="troubleshooting">
+              <div class="issue">
+                <h4>⚠️ Port 5000 in use</h4>
+                <p><strong>Solution:</strong> Kill the process using <code>lsof -ti:5000 | xargs kill -9</code> or disable macOS AirPlay Receiver</p>
+              </div>
+              <div class="issue">
+                <h4>⚠️ Permission denied for packet capture</h4>
+                <p><strong>Solution:</strong> Run backend with sudo: <code>sudo python backend/packet_sniffer.py</code></p>
+              </div>
+              <div class="issue">
+                <h4>⚠️ Connection issues</h4>
+                <p><strong>Solution:</strong> Check that both frontend (port 8000) and backend (port 5000) are running</p>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   </div>
@@ -328,5 +593,373 @@ h1 {
 }
 .delete-btn:hover {
   background: #c0392b;
+}
+
+/* Documentation Styles */
+.documentation-view {
+  padding: 20px 0;
+}
+
+.doc-container {
+  max-width: 900px;
+  margin: 0 auto;
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.doc-container h2 {
+  color: var(--primary);
+  font-size: 2rem;
+  margin-bottom: 30px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.doc-section {
+  margin-bottom: 40px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 30px;
+}
+
+.doc-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.doc-section h3 {
+  color: var(--text);
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.doc-section h4 {
+  color: var(--text);
+  font-size: 1.2rem;
+  margin: 20px 0 12px 0;
+  font-weight: 600;
+}
+
+.doc-content {
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.doc-content p {
+  margin-bottom: 15px;
+  color: var(--text-secondary);
+}
+
+.doc-content ul, .doc-content ol {
+  margin: 15px 0;
+  padding-left: 25px;
+}
+
+.doc-content li {
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+}
+
+.doc-content code {
+  background: var(--border);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  font-size: 0.9em;
+  color: var(--primary);
+}
+
+/* Usage Steps */
+.usage-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 15px;
+  background: var(--background);
+  border-radius: 8px;
+  border-left: 4px solid var(--primary);
+}
+
+.step-number {
+  background: var(--primary);
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-content strong {
+  color: var(--text);
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* Technology Grid */
+.tech-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.tech-category h4 {
+  color: var(--primary);
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+}
+
+.tech-item {
+  margin-bottom: 12px;
+  padding: 12px;
+  background: var(--background);
+  border-radius: 6px;
+  border-left: 3px solid var(--primary);
+}
+
+.tech-item strong {
+  color: var(--text);
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* Architecture Diagram */
+.architecture-diagram {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.arch-layer {
+  background: var(--background);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 15px 0;
+}
+
+.arch-layer h4 {
+  color: var(--primary);
+  margin-bottom: 15px;
+}
+
+.arch-components {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.component {
+  background: var(--primary);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.arch-arrow {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin: 10px 0;
+  font-weight: 600;
+}
+
+/* Component Explanation */
+.component-explanation ul {
+  margin-left: 20px;
+}
+
+/* Security Features */
+.security-features {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.feature-item {
+  padding: 20px;
+  background: var(--background);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.feature-item strong {
+  color: var(--primary);
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+}
+
+.feature-item p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* API Reference */
+.api-section h4 {
+  color: var(--primary);
+  margin: 25px 0 15px 0;
+  font-size: 1.3rem;
+}
+
+.api-endpoint {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px 15px;
+  background: var(--background);
+  border-radius: 6px;
+  margin-bottom: 10px;
+  border-left: 3px solid var(--border);
+}
+
+.method {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+  min-width: 60px;
+  text-align: center;
+}
+
+.method.get {
+  background: #4caf50;
+}
+
+.method.post {
+  background: #2196f3;
+}
+
+.method.socket {
+  background: #9c27b0;
+}
+
+.api-endpoint code {
+  font-size: 1rem;
+  background: transparent;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.api-endpoint p {
+  margin: 0;
+  flex: 1;
+  font-size: 0.9rem;
+}
+
+/* Troubleshooting */
+.troubleshooting {
+  margin-top: 20px;
+}
+
+.issue {
+  padding: 20px;
+  background: var(--background);
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border-left: 4px solid #ff9800;
+}
+
+.issue h4 {
+  color: #ff9800;
+  margin: 0 0 10px 0;
+  font-size: 1.1rem;
+}
+
+.issue p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* Tab Navigation Updates */
+.tab-nav {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 25px;
+  background: var(--background);
+  border-radius: 8px;
+  padding: 4px;
+  border: 1px solid var(--border);
+}
+
+.tab-nav button {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.tab-nav button.active {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tab-nav button:hover:not(.active) {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .tech-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .security-features {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .arch-components {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .api-endpoint {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .step {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .doc-container {
+    padding: 20px;
+    margin: 0 10px;
+  }
 }
 </style>

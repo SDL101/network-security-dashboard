@@ -15,6 +15,9 @@ export const useNetworkStore = defineStore("network", {
     logs: [],
     filteredLogs: [],
     connectionStatus: "disconnected",
+    connectionError: null,
+    reconnectionAttempts: 0,
+    maxReconnectionAttempts: 5,
     activeFilters: {
       eventTypes: [],
       severities: [],
@@ -51,33 +54,96 @@ export const useNetworkStore = defineStore("network", {
 
   actions: {
     initializeSocket() {
+      if (this.socket) {
+        this.socket.disconnect();
+        this.socket = null;
+      }
+
+      this.connectionStatus = "connecting";
+      this.connectionError = null;
+
       this.socket = io("http://localhost:5000", {
         transports: ["websocket", "polling"],
-        reconnectionAttempts: 5,
+        reconnectionAttempts: this.maxReconnectionAttempts,
         reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        timeout: 10000,
       });
 
       this.socket.on("connect", () => {
+        console.log("✅ Connected to server");
         this.connectionStatus = "connected";
+        this.connectionError = null;
+        this.reconnectionAttempts = 0;
         this.isCapturing = false;
         this.isCapturePaused = false;
+      });
+
+      this.socket.on("disconnect", (reason) => {
+        console.log("❌ Disconnected from server:", reason);
+        this.connectionStatus = "disconnected";
+        this.isCapturing = false;
+        
+        if (reason === "io server disconnect") {
+          // Server disconnected us, try to reconnect manually
+          this.connectionError = "Server terminated connection";
+          setTimeout(() => this.attemptReconnection(), 2000);
+        }
+      });
+
+      this.socket.on("connect_error", (error) => {
+        console.error("🔌 Connection error:", error.message);
+        this.connectionStatus = "error";
+        this.connectionError = `Connection failed: ${error.message}`;
+        this.reconnectionAttempts++;
+        
+        if (this.reconnectionAttempts >= this.maxReconnectionAttempts) {
+          this.connectionError = "Unable to connect to server. Please check if the backend is running.";
+        }
+      });
+
+      this.socket.on("reconnect", (attemptNumber) => {
+        console.log(`🔄 Reconnected after ${attemptNumber} attempts`);
+        this.connectionStatus = "connected";
+        this.connectionError = null;
+        this.reconnectionAttempts = 0;
+      });
+
+      this.socket.on("reconnect_error", (error) => {
+        console.error("🔄 Reconnection failed:", error.message);
+        this.connectionStatus = "error";
+        this.connectionError = "Reconnection failed";
       });
 
       this.socket.on("new_log", (data) => {
         if (!this.isCapturing || !data) return;
 
-        if (this.isCapturePaused) {
-          this.queuedLogs.push(data.log);
-        } else {
-          if (data.log) this.addLogEntry(data.log);
-          if (data.stats) this.updateStats(data.stats);
+        try {
+          if (this.isCapturePaused) {
+            this.queuedLogs.push(data.log);
+          } else {
+            if (data.log) this.addLogEntry(data.log);
+            if (data.stats) this.updateStats(data.stats);
+          }
+        } catch (error) {
+          console.error("Error processing new log:", error);
         }
       });
 
       this.socket.on("capture_status", (data) => {
-        this.isCapturing = data.status === "started";
-        if (data.stats) this.updateStats(data.stats);
+        try {
+          this.isCapturing = data.status === "started";
+          if (data.stats) this.updateStats(data.stats);
+        } catch (error) {
+          console.error("Error processing capture status:", error);
+        }
       });
+    },
+
+    attemptReconnection() {
+      if (this.connectionStatus === "connected") return;
+      
+      this.initializeSocket();
     },
 
     startCapture() {

@@ -9,14 +9,31 @@ import time  # Provides time-related functions for tracking uptime and timestamp
 import threading  # To enable multi-threaded operations
 import signal  # Handle OS-level signals for graceful shutdown
 import sys  # System-specific parameters and functions
+import logging  # For better error tracking and debugging
+import traceback  # For detailed error information
 from database import db, NetworkLog, CaptureSession
 from flask_sqlalchemy import SQLAlchemy  
 import json
+
+# === Configure Logging ===
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('network_security.log'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # === App Setup: Initialize Flask app, enable CORS, and configure SocketIO ===
 app = Flask(__name__)  # Create the Flask application instance
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///network_logs.db'  # Configure database URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Disable tracking modifications
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_pre_ping': True,
+    'pool_recycle': 300,
+}
 db.init_app(app)  # Initialize SQLAlchemy with the Flask app
 CORS(app)  # Allow requests from different origins for the web app
 socketio = SocketIO(
@@ -24,11 +41,15 @@ socketio = SocketIO(
     cors_allowed_origins="*",  # Allow all origins for SocketIO connections
     ping_timeout=60,          # Set the ping timeout interval (in seconds)
     ping_interval=25,         # Set the ping interval (in seconds)
-    async_mode='threading'    # Use threading for asynchronous operations
+    async_mode='threading',   # Use threading for asynchronous operations
+    logger=True,              # Enable SocketIO logging
+    engineio_logger=True      # Enable EngineIO logging
 )
 
 # === Global Vars: Initialize capture flag and statistics dictionary ===
 is_capturing = False
+capture_thread = None
+max_logs_per_session = 10000  # Prevent memory issues
 
 # Single source of truth for stats initialization
 def get_initial_stats():
@@ -57,34 +78,51 @@ def handle_disconnect():
 
 @socketio.on('start_capture')
 def handle_start_capture():
-    global is_capturing
-    print("Start capture requested")
-    reset_stats()  # Reset all statistics before starting a new capture session
-    is_capturing = True  # Set capture flag to active
-    # Inform the client that capture has started along with initial stats
-    socketio.emit('capture_status', {
-        'status': 'started',
-        'stats': {
-            'packets_analyzed': 0,
-            'threats_detected': 0,
-            'active_ips': 0,
-            'scan_status': 'Normal',
-            'uptime_seconds': 0
-        }
-    })
-    print("Capture started with reset stats")
+    global is_capturing, capture_thread
+    try:
+        logger.info("Start capture requested")
+        reset_stats()  # Reset all statistics before starting a new capture session
+        is_capturing = True  # Set capture flag to active
+        
+        # Start capture in a separate thread for better performance
+        if capture_thread is None or not capture_thread.is_alive():
+            capture_thread = threading.Thread(target=start_sniffing, daemon=True)
+            capture_thread.start()
+            logger.info("Capture thread started")
+        
+        # Inform the client that capture has started along with initial stats
+        socketio.emit('capture_status', {
+            'status': 'started',
+            'stats': {
+                'packets_analyzed': 0,
+                'threats_detected': 0,
+                'active_ips': 0,
+                'scan_status': 'Normal',
+                'uptime_seconds': 0
+            }
+        })
+        logger.info("Capture started with reset stats")
+    except Exception as e:
+        logger.error(f"Error starting capture: {e}")
+        logger.error(traceback.format_exc())
+        socketio.emit('capture_error', {'message': str(e)})
 
 @socketio.on('stop_capture')
 def handle_stop_capture():
     global is_capturing
-    print("Stop capture requested")
-    is_capturing = False  # Deactivate capture flag
-    # Don't reset stats, just emit curr vals
-    socketio.emit('capture_status', {
-        'status': 'stopped',
-        'stats': format_stats()  # Send curr stats instead of zeroed stats
-    })
-    print("Capture stopped")
+    try:
+        logger.info("Stop capture requested")
+        is_capturing = False  # Deactivate capture flag
+        # Don't reset stats, just emit curr vals
+        socketio.emit('capture_status', {
+            'status': 'stopped',
+            'stats': format_stats()  # Send curr stats instead of zeroed stats
+        })
+        logger.info("Capture stopped")
+    except Exception as e:
+        logger.error(f"Error stopping capture: {e}")
+        logger.error(traceback.format_exc())
+        socketio.emit('capture_error', {'message': str(e)})
 
 # === Threat Detection: Analyze packets to detect potential network threats ===
 def detect_threat(packet):
@@ -97,6 +135,17 @@ def detect_threat(packet):
         return
 
     try:
+        # Prevent memory issues by limiting log count
+        if len(stats["logs"]) >= max_logs_per_session:
+            logger.warning(f"Maximum logs per session ({max_logs_per_session}) reached. Stopping capture.")
+            global is_capturing
+            is_capturing = False
+            socketio.emit('capture_status', {
+                'status': 'stopped',
+                'stats': format_stats(),
+                'message': 'Maximum log limit reached'
+            })
+            return
         # Update statistics for every processed packet
         stats["packets_analyzed"] += 1
         stats["last_scan_time"] = datetime.datetime.now()
@@ -299,23 +348,44 @@ def get_logs():
 # POST /save_session: Save the current logs as a new capture session in the database (with title and timestamp).
 @app.route('/save_session', methods=['POST'])
 def save_session():
-    data = request.get_json()
-    title = data.get('title')
-    logs = data.get('logs')
-    timestamp = data.get('timestamp')
-    # If logs is missing or empty, use all current logs
-    if not logs:
-        logs = stats.get("logs", [])
-    if not title or not logs or not timestamp:
-        return jsonify({'status': 'error', 'message': 'Missing required fields'}), 400
-    session = CaptureSession(
-        title=title,
-        timestamp=timestamp,
-        logs=json.dumps(logs)
-    )
-    db.session.add(session)
-    db.session.commit()
-    return jsonify({'status': 'success', 'id': session.id})
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'status': 'error', 'message': 'No data provided'}), 400
+            
+        title = data.get('title', '').strip()
+        logs = data.get('logs')
+        timestamp = data.get('timestamp')
+        
+        # If logs is missing or empty, use all current logs
+        if not logs:
+            logs = stats.get("logs", [])
+            
+        if not title:
+            return jsonify({'status': 'error', 'message': 'Title cannot be empty'}), 400
+        if not logs:
+            return jsonify({'status': 'error', 'message': 'No logs to save'}), 400
+        if not timestamp:
+            return jsonify({'status': 'error', 'message': 'Timestamp is required'}), 400
+            
+        logger.info(f"Saving session '{title}' with {len(logs)} logs")
+        
+        session = CaptureSession(
+            title=title,
+            timestamp=timestamp,
+            logs=json.dumps(logs)
+        )
+        db.session.add(session)
+        db.session.commit()
+        
+        logger.info(f"Successfully saved session '{title}' with ID {session.id}")
+        return jsonify({'status': 'success', 'id': session.id})
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error saving session: {e}")
+        logger.error(traceback.format_exc())
+        return jsonify({'status': 'error', 'message': f'Database error: {str(e)}'}), 500
 
 # GET /list_sessions: List all saved capture sessions (title, timestamp, event count, id).
 @app.route('/list_sessions')
