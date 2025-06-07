@@ -312,6 +312,104 @@
           </div>
         </section>
 
+        <!-- Capture Session Management -->
+        <section class="doc-section">
+          <h3>💾 Capture Session Management</h3>
+          <div class="doc-content">
+            <p>The dashboard provides powerful session management capabilities to save, organize, and restore your network monitoring sessions.</p>
+            
+            <h4>Saving Capture Sessions</h4>
+            <div class="session-steps">
+              <div class="step">
+                <span class="step-number">1</span>
+                <div class="step-content">
+                  <strong>Stop Active Capture:</strong> Click "Stop Capture" when you have collected interesting network data
+                </div>
+              </div>
+              <div class="step">
+                <span class="step-number">2</span>
+                <div class="step-content">
+                  <strong>Click "Save Logs":</strong> The save button appears only when capture is stopped and logs are available
+                </div>
+              </div>
+              <div class="step">
+                <span class="step-number">3</span>
+                <div class="step-content">
+                  <strong>Choose Save Option:</strong> 
+                  <ul>
+                    <li><strong>Save Filtered:</strong> Only saves logs matching your current filters</li>
+                    <li><strong>Save All:</strong> Saves the entire capture session regardless of active filters</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="step">
+                <span class="step-number">4</span>
+                <div class="step-content">
+                  <strong>Enter Session Title:</strong> Provide a descriptive name (e.g., "Port Scan Investigation", "DNS Analysis Session")
+                </div>
+              </div>
+            </div>
+
+            <h4>Filtering Before Saving</h4>
+            <div class="filter-info">
+              <div class="filter-item">
+                <strong>Event Type Filtering:</strong>
+                <p>Filter by Network Scans, External Connections, Large Packets, or Normal Traffic before saving to focus on specific security events.</p>
+              </div>
+              <div class="filter-item">
+                <strong>Severity Filtering:</strong>
+                <p>Save only High, Medium, or Low severity events to create targeted analysis sessions.</p>
+              </div>
+              <div class="filter-item">
+                <strong>Protocol Filtering:</strong>
+                <p>Focus on specific protocols (HTTP, DNS, SSH, etc.) to create protocol-specific investigation sessions.</p>
+              </div>
+              <div class="filter-item">
+                <strong>Stream Following:</strong>
+                <p>Click on any log entry to follow a conversation between two endpoints, then save the stream-focused view.</p>
+              </div>
+            </div>
+
+            <h4>Best Practices for Session Management</h4>
+            <ul>
+              <li><strong>Descriptive Naming:</strong> Use clear, descriptive titles that indicate the session's purpose</li>
+              <li><strong>Time-based Naming:</strong> Include timestamps for chronological organization</li>
+              <li><strong>Incident-based Naming:</strong> Name sessions after specific security incidents or investigations</li>
+              <li><strong>Filter First:</strong> Apply relevant filters before saving to reduce noise and focus on relevant data</li>
+              <li><strong>Regular Cleanup:</strong> Periodically delete old sessions to maintain performance</li>
+            </ul>
+
+            <h4>Restoring Saved Sessions</h4>
+            <ol>
+              <li><strong>Navigate to Archive Tab:</strong> Click the "Capture Archive" tab in the main navigation</li>
+              <li><strong>Browse Sessions:</strong> View all saved sessions with their titles, dates, and event counts</li>
+              <li><strong>Restore Session:</strong> Click "Restore" to load the session data into the Live Capture view</li>
+              <li><strong>Analyze Restored Data:</strong> Use all filtering and analysis tools on the restored session</li>
+              <li><strong>Delete if Needed:</strong> Remove old or unnecessary sessions using the "Delete" button</li>
+            </ol>
+
+            <h4>Example Use Cases</h4>
+            <div class="use-cases">
+              <div class="use-case">
+                <strong>🔍 Security Investigation</strong>
+                <p>Filter for "High Severity" events, follow suspicious connections, then save as "Security Incident [Date]" for later forensic analysis.</p>
+              </div>
+              <div class="use-case">
+                <strong>📊 Protocol Analysis</strong>
+                <p>Filter by specific protocol (e.g., DNS), monitor for a period, then save as "DNS Traffic Analysis" to study patterns.</p>
+              </div>
+              <div class="use-case">
+                <strong>🔒 Port Scan Documentation</strong>
+                <p>Filter for "Network Scan" events during an active scan, then save as evidence for security reporting.</p>
+              </div>
+              <div class="use-case">
+                <strong>🌐 External Traffic Monitoring</strong>
+                <p>Filter for "External Connections" to monitor outbound traffic, save sessions to track data exfiltration patterns.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- Troubleshooting -->
         <section class="doc-section">
           <h3>🔧 Troubleshooting</h3>
@@ -328,6 +426,14 @@
               <div class="issue">
                 <h4>⚠️ Connection issues</h4>
                 <p><strong>Solution:</strong> Check that both frontend (port 8000) and backend (port 5000) are running</p>
+              </div>
+              <div class="issue">
+                <h4>⚠️ Session won't save</h4>
+                <p><strong>Solution:</strong> Ensure capture is stopped and you have logs to save. Check that the title field is not empty.</p>
+              </div>
+              <div class="issue">
+                <h4>⚠️ Restored session appears empty</h4>
+                <p><strong>Solution:</strong> The session may have been saved with active filters. Try clearing all filters to see the complete data.</p>
               </div>
             </div>
           </div>
@@ -929,6 +1035,65 @@ h1 {
   color: var(--text);
 }
 
+/* Session Management Styles */
+.session-steps {
+  margin: 20px 0;
+}
+
+.filter-info {
+  margin: 20px 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.filter-item {
+  padding: 15px;
+  background: var(--background);
+  border-radius: 6px;
+  border-left: 3px solid var(--primary);
+}
+
+.filter-item strong {
+  color: var(--text);
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1rem;
+}
+
+.filter-item p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.use-cases {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.use-case {
+  padding: 20px;
+  background: var(--background);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.use-case strong {
+  color: var(--primary);
+  display: block;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.use-case p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .tech-grid {
@@ -937,6 +1102,16 @@ h1 {
   }
   
   .security-features {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .filter-info {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .use-cases {
     grid-template-columns: 1fr;
     gap: 15px;
   }
