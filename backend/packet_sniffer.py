@@ -126,6 +126,8 @@ def handle_stop_capture():
 
 # === Threat Detection: Analyze packets to detect potential network threats ===
 def detect_threat(packet):
+    global is_capturing
+    
     # Only process packets if capture is active
     if not is_capturing:
         return
@@ -138,7 +140,6 @@ def detect_threat(packet):
         # Prevent memory issues by limiting log count
         if len(stats["logs"]) >= max_logs_per_session:
             logger.warning(f"Maximum logs per session ({max_logs_per_session}) reached. Stopping capture.")
-            global is_capturing
             is_capturing = False
             socketio.emit('capture_status', {
                 'status': 'stopped',
