@@ -15,7 +15,7 @@ A comprehensive real-time network traffic analysis tool that provides instant vi
 
 Check out a quick video demo here:
 
-https://github.com/user-attachments/assets/f788df90-175b-4804-bde1-e1ab9da5fbf0
+https://github.com/user-attachments/assets/4cfefe09-ed3a-4f96-9dbf-3d78cafaa586
 
 
 <div style="display: flex; justify-content: space-between; margin: 20px 0;">
